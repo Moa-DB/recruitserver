@@ -1,3 +1,10 @@
 language: java
 jdk:
     - oraclejdk8
+deploy:
+    provider: heroku
+    api-key:
+        secure: $HEROKU_API_KEY
+    app: iv1201-recruit-server
+    on:
+        repo: Moa-DB/recruitserver
