@@ -8,3 +8,5 @@ deploy:
     app: iv1201-recruit-server
     on:
         repo: Moa-DB/recruitserver
+before_install:
+    - chmod a+x mvnw
