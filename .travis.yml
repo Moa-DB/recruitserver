@@ -10,3 +10,4 @@ deploy:
         repo: Moa-DB/recruitserver
 before_install:
     - chmod a+x mvnw
+    - mysql -e 'CREATE DATABASE recruit;'
