@@ -22,6 +22,7 @@ spring:
     username: ${CLEARDB_USER}
     password: ${CLEARDB_PASSWORD}
     platform: mysql
+    initialize: false
   jpa:
     hibernate:
           ddl-auto: update
