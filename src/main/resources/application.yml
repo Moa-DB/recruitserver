@@ -27,7 +27,7 @@ spring:
 spring:
   profiles: travis
   datasource:
-      url: jdbc:${CLEARDB_DATABASE_URL}&useLegacyDatetimeCode=false&characterEncoding=UTF-8
+    url: jdbc:${CLEARDB_DATABASE_URL}&useLegacyDatetimeCode=false&characterEncoding=UTF-8
     username: ${CLEARDB_USER}
     password: ${CLEARDB_PASSWORD}
     platform: mysql
