@@ -10,29 +10,37 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import se.moadb.recruitserver.application.CustomAuthenticationFailureHandler;
 import se.moadb.recruitserver.application.UserDetailsService;
 
+/**
+ * The config class contain annotations @Configuration and @EnableTransactionManagement
+ * Spring will create all the transaction management beans and make them available to the IOC container
+ */
+@EnableTransactionManagement
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter{
+
+    private final UserDetailsService securityService;
 
     @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Override
-    protected UserDetailsService userDetailsService() {
-        return userDetailsService;
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.securityService = userDetailsService;
     }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .and()
                 .authorizeRequests()
-                .antMatchers("/registration").permitAll()
-                .antMatchers("/getAllImages").access("hasRole('USER') or hasRole('ADMIN')")
-                .antMatchers("/uploadImage").access("hasRole('USER') or hasRole('ADMIN')")
-                .antMatchers("/deleteImage/*").access("hasRole('ADMIN')")
+                .antMatchers("/protected").authenticated()
                 .antMatchers("/login*").permitAll()
                 .antMatchers(
                         HttpMethod.GET,
@@ -45,37 +53,45 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password")
                 .loginProcessingUrl("/perform_login")
                 .defaultSuccessUrl("/index.html",true)
-//                .failureHandler(myAuthenticationFailureHandler())
+                .failureHandler(customAuthenticationFailureHandler())
                 .and()
                 .logout()
-                .logoutUrl("/perform_logout")
-                .deleteCookies("JSESSIONID")
-        ;
+                .logoutUrl("/perform_logout");
     }
 
+    /**
+     * We use BCrypt to encode passwords
+     * @return
+     */
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passWordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Spring authentication provider that uses BCryptPasswordEncoder and checks with our securityService
+     * that checks with our database
+     * @return
+     */
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userDetailsService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
+    public DaoAuthenticationProvider authProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passWordEncoder()); // uses BCryptPasswordEncoder
+        provider.setUserDetailsService(securityService);
+        return provider;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
+    /**
+     * Choose our our authProvider as authentication provider
+     */
+    protected void configure(AuthenticationManagerBuilder auth){
+        auth.authenticationProvider(authProvider());
     }
 
-//    @Bean
-//    public CustomAuthenticationFailureHandler myAuthenticationFailureHandler() {
-//        return new CustomAuthenticationFailureHandler();
-//    }
-
+    @Bean
+    public AuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return new CustomAuthenticationFailureHandler();
+    }
 
 
 }
