@@ -8,6 +8,7 @@ deploy:
     app: iv1201-recruit-server
     on:
         repo: Moa-DB/recruitserver
+env:
+    - SPRING_PROFILES_ACTIVE=travis
 before_install:
     - chmod a+x mvnw
-    - mysql -e 'CREATE DATABASE recruit;'
