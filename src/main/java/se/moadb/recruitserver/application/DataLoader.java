@@ -44,12 +44,15 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-    //TODO: When do we migrate?
+        String migrate = System.getenv("MIGRATE");
+
+        if(migrate.equals("TRUE")){
             runSqlFromFile("oldDB.sql");
             runSqlFromFile("oldData.sql");
 
             migrateOldToNew();
             deleteOldTables();
+        }
 
     }
 
