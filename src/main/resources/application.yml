@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/recruit?useSSL=false
     username: root
-    password: password
+    password: moonroot
     platform: mysql
   jpa:
     hibernate:

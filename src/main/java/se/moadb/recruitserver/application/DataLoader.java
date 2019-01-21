@@ -12,7 +12,7 @@ import se.moadb.recruitserver.repository.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
-
+import java.util.HashMap;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -44,26 +44,26 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-    //TODO: When do we migrate? This condition is not good.
-        if(personRepository.findByOldId(1L) == null){
+    //TODO: When do we migrate?
             runSqlFromFile("oldDB.sql");
             runSqlFromFile("oldData.sql");
 
             migrateOldToNew();
             deleteOldTables();
-        }
 
     }
 
     private void migrateOldToNew(){
 
+        HashMap<String, String> translation = new HashMap<>();
+
         jdbcTemplate.query(
                 "SELECT * FROM OLDcompetence", new Object[] {},
-                (rs, rowNum) -> competenceRepository.save(new Competence(rs.getString("name"), rs.getLong("competence_id"))));
+                (rs, rowNum) -> translation.put( "competence" + rs.getLong("competence_id"), competenceRepository.save(new Competence(rs.getString("name"))).getName()));
 
         jdbcTemplate.query(
                 "SELECT * FROM OLDrole", new Object[] {},
-                (rs, rowNum) -> roleRepository.save(new Role(rs.getString("name"), rs.getLong("role_id"))));
+                (rs, rowNum) -> translation.put( "role" + rs.getLong("role_id"), roleRepository.save(new Role(rs.getString("name"))).getName()));
 
         //If no username can be found, a new user is created with the value of the surname row  as password.
         // In real world, a safer password could be generated and sent to the user trough email.
@@ -72,25 +72,29 @@ public class DataLoader implements ApplicationRunner {
                 (rs, rowNum) ->
                 {
                     if(rs.getString("username") != null) {
-                        return personRepository.save(new Person(rs.getString("name"), rs.getString("surname"),
+                        return translation.put( "person" + rs.getLong("person_id"), String.valueOf(personRepository.save(new Person(rs.getString("name"), rs.getString("surname"),
                                 rs.getString("ssn"), rs.getString("email"), userDetailsService.saveUser(rs.getString("username"),
-                                rs.getString("password"), roleRepository.findById(rs.getLong("role_id")).getName()), rs.getLong("person_id")));
+                                rs.getString("password"), roleRepository.findByName(translation.get("role" + rs.getLong("role_id"))).getName()))).getId()));
                     }
                     else {
-                        return  personRepository.save(new Person(rs.getString("name"), rs.getString("surname"),
+                        return  translation.put( "person" + rs.getLong("person_id"), String.valueOf(personRepository.save(new Person(rs.getString("name"), rs.getString("surname"),
                                 rs.getString("ssn"), rs.getString("email"), userDetailsService.saveUser(rs.getString("name"),
-                                rs.getString("surname"), roleRepository.findById(rs.getLong("role_id")).getName()), rs.getLong("person_id")));
+                                rs.getString("surname"), roleRepository.findByName(translation.get("role" + rs.getLong("role_id"))).getName()))).getId()));
                     }
                 }
         );
 
         jdbcTemplate.query(
                 "SELECT * FROM OLDavailability", new Object[] {},
-                (rs, rowNum) -> availabilityRepository.save(new Availability( personRepository.findByOldId(rs.getLong("person_id")), rs.getDate("from_date"), rs.getDate("to_date"))));
+                (rs, rowNum) -> availabilityRepository.save(new Availability(
+
+                        personRepository.findById(Long.valueOf(translation.get("person" + rs.getLong("person_id"))))
+
+                        , rs.getDate("from_date"), rs.getDate("to_date"))));
 
         jdbcTemplate.query(
                 "SELECT * FROM OLDcompetence_profile", new Object[] {},
-                (rs, rowNum) -> competenceProfileRepository.save(new CompetenceProfile( personRepository.findByOldId(rs.getLong("person_id")), competenceRepository.findByOldId(rs.getLong("competence_id")), rs.getDouble("years_of_experience"))));
+                (rs, rowNum) -> competenceProfileRepository.save(new CompetenceProfile( personRepository.findById(Long.valueOf(translation.get("person" + rs.getLong("person_id")))), competenceRepository.findByName(translation.get("competence" + rs.getLong("competence_id"))), rs.getDouble("years_of_experience"))));
 
 
     }

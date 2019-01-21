@@ -17,22 +17,17 @@ public class Person {
     @OneToOne
     private User user;
 
-    private Long oldId;
 
     public Person() {
     }
 
-    public Person(@NotNull String name, @NotNull String surname, String ssn, @NotNull String email, User user, Long oldId) {
+    public Person(String name, String surname, String ssn, String email, User user) {
         this.name = name;
         this.surname = surname;
         this.ssn = ssn;
         this.email = email;
         this.user = user;
-        this.oldId = oldId;
     }
-
-
-
 
     public long getId() {
         return id;
@@ -80,13 +75,5 @@ public class Person {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Long getOldId() {
-        return oldId;
-    }
-
-    public void setOldId(Long oldId) {
-        this.oldId = oldId;
     }
 }
