@@ -10,16 +10,14 @@ public class Availability {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @OneToOne
-    private Person person;
+
     private java.sql.Date fromDate;
     private java.sql.Date toDate;
 
     public Availability() {
     }
 
-    public Availability(Person person, Date fromDate, Date toDate) {
-        this.person = person;
+    public Availability(Date fromDate, Date toDate) {
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -30,14 +28,6 @@ public class Availability {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public Date getFromDate() {

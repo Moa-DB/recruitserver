@@ -86,15 +86,11 @@ public class DataLoader implements ApplicationRunner {
 
         jdbcTemplate.query(
                 "SELECT * FROM OLDavailability", new Object[] {},
-                (rs, rowNum) -> availabilityRepository.save(new Availability(
-
-                        personRepository.findById(Long.valueOf(translation.get("person" + rs.getLong("person_id"))))
-
-                        , rs.getDate("from_date"), rs.getDate("to_date"))));
+                (rs, rowNum) -> availabilityRepository.save(new Availability( rs.getDate("from_date"), rs.getDate("to_date"))));
 
         jdbcTemplate.query(
                 "SELECT * FROM OLDcompetence_profile", new Object[] {},
-                (rs, rowNum) -> competenceProfileRepository.save(new CompetenceProfile( personRepository.findById(Long.valueOf(translation.get("person" + rs.getLong("person_id")))), competenceRepository.findByName(translation.get("competence" + rs.getLong("competence_id"))), rs.getDouble("years_of_experience"))));
+                (rs, rowNum) -> competenceProfileRepository.save(new CompetenceProfile( competenceRepository.findByName(translation.get("competence" + rs.getLong("competence_id"))), rs.getDouble("years_of_experience"))));
 
 
     }

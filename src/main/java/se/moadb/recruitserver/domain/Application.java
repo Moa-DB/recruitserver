@@ -13,7 +13,7 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne
+    @ManyToOne
     private Person person;
 
     @OneToMany
@@ -22,7 +22,7 @@ public class Application {
     @OneToMany
     private Collection<Availability> availabilities;
 
-    @OneToOne
+    @ManyToOne
     private Status status;
 
     public Application() {
