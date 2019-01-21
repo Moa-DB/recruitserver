@@ -8,6 +8,4 @@ import se.moadb.recruitserver.domain.Role;
 public interface RoleRepository extends JpaRepository<Role, String> {
 
     Role findByName(String role);
-
-    Role findById(Long id);
 }

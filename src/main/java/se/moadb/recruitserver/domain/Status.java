@@ -1,19 +1,18 @@
 package se.moadb.recruitserver.domain;
 
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class Competence {
+public class Status {
 
     @Id
     private String name;
 
-    public Competence() {
+    public Status() {
     }
 
-    public Competence(String name) {
+    public Status(String name) {
         this.name = name;
     }
 

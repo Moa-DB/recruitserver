@@ -5,6 +5,7 @@ import se.moadb.recruitserver.domain.Person;
 
 public interface PersonRepository extends JpaRepository<Person, Integer> {
 
-    Person findByOldId(Long id);
+    Person findById(Long id);
+    Person findByName(String name);
 
 }

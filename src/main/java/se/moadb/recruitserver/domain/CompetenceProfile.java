@@ -8,17 +8,15 @@ public class CompetenceProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @OneToOne
-    private Person person;
-    @OneToOne
+
+    @ManyToOne
     private Competence competence;
     private double yearsOfExperience;
 
     public CompetenceProfile() {
     }
 
-    public CompetenceProfile(Person person, Competence competence, double yearsOfExperience) {
-        this.person = person;
+    public CompetenceProfile(Competence competence, double yearsOfExperience) {
         this.competence = competence;
         this.yearsOfExperience = yearsOfExperience;
     }
@@ -29,14 +27,6 @@ public class CompetenceProfile {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public Competence getCompetence() {
