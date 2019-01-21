@@ -22,7 +22,7 @@ spring:
     platform: mysql
   jpa:
     hibernate:
-          ddl-auto: create-drop
+          ddl-auto: update
 ---
 spring:
   profiles: travis
@@ -33,4 +33,4 @@ spring:
     platform: mysql
   jpa:
     hibernate:
-          ddl-auto: create-drop
+          ddl-auto: update

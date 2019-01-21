@@ -12,3 +12,4 @@ env:
     - SPRING_PROFILES_ACTIVE=travis
 before_install:
     - chmod a+x mvnw
+    
