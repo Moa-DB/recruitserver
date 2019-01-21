@@ -43,7 +43,7 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
+        //Reads value from environment variable which can be set in Travis and Heroku if migration is wanted.
         String migrate = System.getenv("MIGRATE");
 
         if(migrate.equals("TRUE")){
