@@ -3,6 +3,7 @@ package se.moadb.recruitserver.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -30,11 +31,14 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
+    private final BCryptPasswordEncoder passWordEncoder;
+
     private final SecurityService securityService;
 
     @Autowired
-    public SecurityConfig(SecurityService securityService) {
+    public SecurityConfig(SecurityService securityService, BCryptPasswordEncoder passWordEncoder) {
         this.securityService = securityService;
+        this.passWordEncoder = passWordEncoder;
     }
 
 
@@ -66,14 +70,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .logoutUrl("/perform_logout");
     }
 
-    /**
-     * We use BCrypt to encode passwords
-     * @return
-     */
-    @Bean
-    public BCryptPasswordEncoder passWordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+//    /**
+//     * We use BCrypt to encode passwords
+//     * @return
+//     */
+//    @Bean
+//    public BCryptPasswordEncoder passWordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
 
     /**
      * Spring authentication provider that uses BCryptPasswordEncoder and checks with our securityService
@@ -83,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     @Bean
     public DaoAuthenticationProvider authProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passWordEncoder()); // uses BCryptPasswordEncoder
+        provider.setPasswordEncoder(passWordEncoder); // uses BCryptPasswordEncoder
         provider.setUserDetailsService(securityService);
         return provider;
     }
