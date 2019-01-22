@@ -30,7 +30,7 @@ public class DataLoader implements ApplicationRunner {
     UserRepository userRepository;
 
     @Autowired
-    UserDetailsService userDetailsService;
+    SecurityService userDetailsService;
 
     @Autowired
     PersonRepository personRepository;

@@ -12,8 +12,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import se.moadb.recruitserver.application.CustomAuthenticationFailureHandler;
-import se.moadb.recruitserver.application.UserDetailsService;
+import se.moadb.recruitserver.application.SecurityService;
+
+import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * The config class contain annotations @Configuration and @EnableTransactionManagement
@@ -24,10 +30,10 @@ import se.moadb.recruitserver.application.UserDetailsService;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
-    private final UserDetailsService securityService;
+    private final SecurityService securityService;
 
     @Autowired
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(SecurityService userDetailsService) {
         this.securityService = userDetailsService;
     }
 
@@ -36,8 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-                .csrf().disable()
+                //.csrf().disable()
                 .exceptionHandling()
+                .and()
+                .cors()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/protected").authenticated()
@@ -48,11 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().loginPage("/index.html")
+                .formLogin()
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .loginProcessingUrl("/perform_login")
-                .defaultSuccessUrl("/index.html",true)
                 .failureHandler(customAuthenticationFailureHandler())
                 .and()
                 .logout()
@@ -92,6 +99,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     public AuthenticationFailureHandler customAuthenticationFailureHandler() {
         return new CustomAuthenticationFailureHandler();
     }
+
+
+    /**
+     * CORS setup
+     * @return
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 
 
 }

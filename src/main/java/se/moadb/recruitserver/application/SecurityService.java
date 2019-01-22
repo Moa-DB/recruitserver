@@ -3,6 +3,7 @@ package se.moadb.recruitserver.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,12 +11,13 @@ import se.moadb.recruitserver.domain.Role;
 import se.moadb.recruitserver.domain.User;
 import se.moadb.recruitserver.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class SecurityService implements org.springframework.security.core.userdetails.UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -30,6 +32,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     @Override
     public final User loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("user: " + username + " tried to log in");
         final User user = repository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
@@ -37,6 +40,7 @@ public class UserDetailsService implements org.springframework.security.core.use
         detailsChecker.check(user);
         return user;
     }
+
 
 
     public User saveUser(String username, String password, String role) {
