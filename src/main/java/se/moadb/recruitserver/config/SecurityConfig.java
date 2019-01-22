@@ -33,8 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     private final SecurityService securityService;
 
     @Autowired
-    public SecurityConfig(SecurityService userDetailsService) {
-        this.securityService = userDetailsService;
+    public SecurityConfig(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
 
