@@ -18,8 +18,8 @@ import java.util.Set;
 @Service
 public class SecurityService implements UserDetailsService {
 
-//    @Autowired
-//    private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository repository;
@@ -42,12 +42,12 @@ public class SecurityService implements UserDetailsService {
 
 
 
-//    public User saveUser(String username, String password, String role) {
-//            Set<Role> authorities = new HashSet<>(Arrays.asList(
-//                    roleService.findByName(role)
-//            ));
-//            User user = new User(username, passwordEncoder.encode(password), authorities);
-//            repository.save(user);
-//            return user;
-//    }
+    public User saveUser(String username, String password, String role) {
+            Set<Role> authorities = new HashSet<>(Arrays.asList(
+                    roleService.findByName(role)
+            ));
+            User user = new User(username, passwordEncoder.encode(password), authorities);
+            repository.save(user);
+            return user;
+    }
 }
