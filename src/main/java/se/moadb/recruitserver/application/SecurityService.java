@@ -3,7 +3,7 @@ package se.moadb.recruitserver.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,13 +11,12 @@ import se.moadb.recruitserver.domain.Role;
 import se.moadb.recruitserver.domain.User;
 import se.moadb.recruitserver.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class SecurityService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class SecurityService implements UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
