@@ -45,6 +45,7 @@ public class DataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         String migrate = System.getenv("MIGRATE");
+        //migrate = "TRUE";
 
         if(migrate.equals("TRUE")){
             runSqlFromFile("oldDB.sql");
