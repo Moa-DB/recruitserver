@@ -28,6 +28,13 @@ public class Application {
     public Application() {
     }
 
+    public Application(Person person, Collection<CompetenceProfile> competenceProfiles, Collection<Availability> availabilities, Status status) {
+        this.person = person;
+        this.competenceProfiles = competenceProfiles;
+        this.availabilities = availabilities;
+        this.status = status;
+    }
+
     public long getId() {
         return id;
     }

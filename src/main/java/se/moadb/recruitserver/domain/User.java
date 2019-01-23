@@ -26,20 +26,24 @@ public class User implements UserDetails {
 
     @ManyToMany
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<Role> role;
+    private Collection<Role> roles;
 
     public User() {
     }
 
-    public User(@NotNull String username, @NotNull String password, Collection<Role> role) {
+    public User(@NotNull String username, @NotNull String password, Collection<Role> roles) {
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
+    }
+
+    public Collection<Role> getRoles() {
+        return roles;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role;
+        return roles;
     }
 
     @Override
