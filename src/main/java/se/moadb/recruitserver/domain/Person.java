@@ -1,6 +1,8 @@
 package se.moadb.recruitserver.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +16,7 @@ public class Person {
     private String surname;
     private String ssn;
     private String email;
+    @JsonIgnore
     @OneToOne
     private User user;
 

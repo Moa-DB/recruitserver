@@ -1,6 +1,8 @@
 package se.moadb.recruitserver.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.sql.Date;
 
@@ -11,8 +13,10 @@ public class Availability {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private java.sql.Date fromDate;
-    private java.sql.Date toDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date fromDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date toDate;
 
     public Availability() {
     }
