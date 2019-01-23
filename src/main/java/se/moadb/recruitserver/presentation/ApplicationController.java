@@ -2,6 +2,8 @@ package se.moadb.recruitserver.presentation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import se.moadb.recruitserver.application.ApplicationService;
+import se.moadb.recruitserver.domain.Application;
 
 /**
  * Entry point for REST requests concerning applications.
@@ -15,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/applications")
 public class ApplicationController {
-   //@Autowired
-   //private ApplicationService applicationService;
+   @Autowired
+   private ApplicationService applicationService;
 
    /**
     * Submit a job application. Applications are stored as "unhandled".
@@ -60,7 +62,9 @@ public class ApplicationController {
     * Change status of an application to "accepted"
     */
    @PutMapping("/{id}/accept")
-   public void acceptApplication() {}
+   public Application acceptApplication(@PathVariable long id) {
+      return applicationService.accept(id);
+   }
 
    /**
     * Change status of an application to "rejected"
