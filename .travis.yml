@@ -14,6 +14,5 @@ env:
     - SPRING_PROFILES_ACTIVE=travis
 before_install:
     - chmod a+x mvnw
-    - mysql -e 'CREATE DATABASE IF NOT EXISTS recruit;'
-    - export MIGRATE=TRUE
-    
+    - mysql -e 'DROP DATABASE recruit;'
+    - mysql -e 'CREATE DATABASE recruit;'
