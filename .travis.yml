@@ -1,6 +1,8 @@
 language: java
 jdk:
     - oraclejdk8
+services:
+    - mysql
 deploy:
     provider: heroku
     api-key:
@@ -12,4 +14,6 @@ env:
     - SPRING_PROFILES_ACTIVE=travis
 before_install:
     - chmod a+x mvnw
+    - mysql -e 'CREATE DATABASE IF NOT EXISTS recruit;'
+    - export MIGRATE="TRUE"
     
