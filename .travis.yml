@@ -14,5 +14,5 @@ env:
     - SPRING_PROFILES_ACTIVE=travis
 before_install:
     - chmod a+x mvnw
-    - mysql -e 'DROP DATABASE recruit;'
+    - mysql -e 'DROP DATABASE IF EXISTS recruit;'
     - mysql -e 'CREATE DATABASE recruit;'
