@@ -15,5 +15,5 @@ env:
 before_install:
     - chmod a+x mvnw
     - mysql -e 'CREATE DATABASE IF NOT EXISTS recruit;'
-    - export MIGRATE="TRUE"
+    - export MIGRATE=TRUE
     

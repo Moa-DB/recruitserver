@@ -27,7 +27,7 @@ spring:
 spring:
   profiles: travis
   datasource:
-    url: jdbc:mysql://localhost:3306/recruit?useSSL=false&allowPublicKeyRetrieval&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/recruit?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
     username: root
     password: ''
     platform: mysql
