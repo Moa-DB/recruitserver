@@ -34,6 +34,7 @@ public class ApplicationServiceTest {
 
    private Application unhandledapp;
    private Application acceptedapp;
+   private Application rejectedapp;
    @Before
    public void setUp() {
       Person p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
@@ -52,8 +53,29 @@ public class ApplicationServiceTest {
       unhandledapp = new Application(p, cplist, alist, new Status("UNHANDLED"));
       unhandledapp.setId(1);
       acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"));
+      rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"));
    }
 
+   @Test
+   public void unhandle_shouldReturnUnhandledApp() throws Exception {
+      Application accepted = acceptedapp;
+      Application expected = unhandledapp;
+      expected.setId(1);
+
+      Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
+      Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(accepted));
+      Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(unhandledapp);
+      Application result = applicationService.unhandle(1);
+      Assert.assertEquals(expected, result);
+
+   }
+   @Test(expected = EntityDoesNotExistException.class)
+   public void unhandle_wrongIdShouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
+
+      applicationService.accept(10);
+   }
    @Test
    public void accept_shouldReturnAcceptedApp() throws Exception {
       Application unhandled = unhandledapp;
@@ -69,6 +91,25 @@ public class ApplicationServiceTest {
    @Test(expected = EntityDoesNotExistException.class)
    public void accept_wrongIdShouldThrowException() throws Exception {
       Mockito.when(statusRepository.findByName("ACCEPTED")).thenReturn(new Status("ACCEPTED"));
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
+
+      applicationService.accept(10);
+   }
+   @Test
+   public void reject_shouldReturnRejectedApp() throws Exception {
+      Application unhandled = unhandledapp;
+      Application expected = rejectedapp;
+      expected.setId(1);
+
+      Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
+      Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(unhandled));
+      Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(rejectedapp);
+      Application result = applicationService.accept(1);
+      Assert.assertEquals(expected, result);
+   }
+   @Test(expected = EntityDoesNotExistException.class)
+   public void reject_wrongIdShouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
       applicationService.accept(10);

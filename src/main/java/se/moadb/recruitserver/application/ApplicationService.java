@@ -39,4 +39,38 @@ public class ApplicationService  {
          throw new EntityDoesNotExistException("application", id);
       }
    }
+   /**
+    * Reject an application.
+    * @param id, referring to the application
+    * @return The rejected application.
+    */
+   public Application reject(long id) {
+
+      Status rejected = statusRepository.findByName("REJECTED");
+
+      try {
+         Application application = applicationRepository.findById(id).get();
+         application.setStatus(rejected);
+         return applicationRepository.save(application);
+      } catch (NoSuchElementException e) {
+         throw new EntityDoesNotExistException("application", id);
+      }
+   }
+   /**
+    * Unhandle an application.
+    * @param id, referring to the application
+    * @return The unhandled application.
+    */
+   public Application unhandle(long id) {
+      Status unhandled = statusRepository.findByName("UNHANDLED");
+
+      try {
+         Application application = applicationRepository.findById(id).get();
+         application.setStatus(unhandled);
+         return applicationRepository.save(application);
+      } catch (NoSuchElementException e) {
+         throw new EntityDoesNotExistException("application", id);
+      }
+
+   }
 }
