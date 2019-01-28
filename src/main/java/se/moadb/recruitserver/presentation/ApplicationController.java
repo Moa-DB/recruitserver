@@ -6,6 +6,7 @@ import se.moadb.recruitserver.application.ApplicationService;
 import se.moadb.recruitserver.domain.Application;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entry point for REST requests concerning applications.
@@ -58,8 +59,8 @@ public class ApplicationController {
     * All keys are optional, that is, you can specify none, one, or any number of them together.
     */
    @GetMapping
-   public List<Application> getApplications() {
-      return applicationService.getAllApplications();
+   public List<Application> getApplications(Map<String, Object> request) {
+      return applicationService.getApplications(request);
    }
 
    /**

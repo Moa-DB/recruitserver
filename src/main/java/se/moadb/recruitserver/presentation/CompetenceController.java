@@ -21,6 +21,10 @@ public class CompetenceController {
     @Autowired
     CompetenceService competenceService;
 
+    /**
+     * Get all competences.
+     * @return a list of all competences.
+     */
     @GetMapping
     public List<Competence> listAllCompetences(){
         return competenceService.listAllCompetences();

@@ -10,7 +10,9 @@ import se.moadb.recruitserver.repository.ApplicationRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+
 
 /**
  * Service that handles logic concerning the /applications API.
@@ -42,10 +44,20 @@ public class ApplicationService  {
    }
 
    /**
-    * Finds all applications
-    * @return all applications
+    * Finds applications
+    * No attached JSON data means you get all applications.
+    * JSON can be used to filter data and should be structured as follows:
+    * {
+    *    name : string,
+    *    application_date : date,
+    *    competence : string,
+    *    from_time : date,
+    *    to_time : date
+    * }
+    * @return the requested applications
     */
-   public List<Application> getAllApplications(){
+   public List<Application> getApplications(Map<String, Object> request){
+
       return applicationRepository.findAll();
    }
 }
