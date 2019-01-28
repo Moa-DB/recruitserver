@@ -70,12 +70,15 @@ public class ApplicationController {
     * Change status of an application to "rejected"
     */
    @PutMapping("/{id}/reject")
-   public void rejectApplication() {}
+   public Application rejectApplication(@PathVariable long id) {
+      return applicationService.reject(id);
+   }
 
    /**
     * Change status of an application to "unhandled"
     */
    @PutMapping("/{id}/unhandle")
-   public void unhandleApplication() {}
-
+   public Application unhandleApplication(@PathVariable long id) {
+      return applicationService.unhandle(id);
+   }
 }
