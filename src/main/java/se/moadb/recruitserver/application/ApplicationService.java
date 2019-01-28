@@ -9,6 +9,7 @@ import se.moadb.recruitserver.domain.Status;
 import se.moadb.recruitserver.repository.ApplicationRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -38,5 +39,13 @@ public class ApplicationService  {
       } catch (NoSuchElementException e) {
          throw new EntityDoesNotExistException("application", id);
       }
+   }
+
+   /**
+    * Finds all applications
+    * @return all applications
+    */
+   public List<Application> getAllApplications(){
+      return applicationRepository.findAll();
    }
 }
