@@ -1,5 +1,6 @@
 package se.moadb.recruitserver.presentation;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,5 +88,30 @@ public class ApplicationControllerTest {
       String expected = "{ \"id\": 1, \"person\": { \"id\": 4, \"name\": \"Per\", \"surname\": \"Strand\", \"ssn\": \"19671212-1211\", \"email\": \"per@strand.kth.se\" }, \"competenceProfiles\": [ { \"id\": 7, \"competence\": { \"name\": \"Korvgrillning\" }, \"yearsOfExperience\": 3.5 }, { \"id\": 8, \"competence\": { \"name\": \"Karuselldrift\" }, \"yearsOfExperience\": 2 } ], \"availabilities\": [ { \"id\": 5, \"fromDate\": \"2014-02-23\", \"toDate\": \"2014-05-25\" }, { \"id\": 6, \"fromDate\": \"2014-07-10\", \"toDate\": \"2014-08-10\" } ], \"status\": { \"name\": \"ACCEPTED\" } }";
       JSONAssert.assertEquals(expected, res.getResponse().getContentAsString(), false);
    }
+   @Test
+   public void whenRejectApplication_shouldReturnApplication() throws Exception {
+      long id = 1;
+      Application a = new Application(p, competenceProfiles, availabilities, new Status("REJECTED"));
+      a.setId(1);
+      Mockito.when(applicationService.reject(id)).thenReturn(a);
 
+      RequestBuilder rb = MockMvcRequestBuilders.put("/applications/1/reject").accept(MediaType.APPLICATION_JSON);
+      MvcResult res = mvc.perform(rb).andReturn();
+      String expected = "{ \"id\": 1, \"person\": { \"id\": 4, \"name\": \"Per\", \"surname\": \"Strand\", \"ssn\": \"19671212-1211\", \"email\": \"per@strand.kth.se\" }, \"competenceProfiles\": [ { \"id\": 7, \"competence\": { \"name\": \"Korvgrillning\" }, \"yearsOfExperience\": 3.5 }, { \"id\": 8, \"competence\": { \"name\": \"Karuselldrift\" }, \"yearsOfExperience\": 2 } ], \"availabilities\": [ { \"id\": 5, \"fromDate\": \"2014-02-23\", \"toDate\": \"2014-05-25\" }, { \"id\": 6, \"fromDate\": \"2014-07-10\", \"toDate\": \"2014-08-10\" } ], \"status\": { \"name\": \"REJECTED\" } }";
+      JSONAssert.assertEquals(expected, res.getResponse().getContentAsString(), false);
+      //Assert.assertEquals(expected, res.getResponse().getContentAsString());
+   }
+   @Test
+   public void whenUnhandleApplication_shouldReturnApplication() throws Exception {
+      long id = 1;
+      Application a = new Application(p, competenceProfiles, availabilities, new Status("UNHANDLED"));
+      a.setId(1);
+      Mockito.when(applicationService.unhandle(id)).thenReturn(a);
+
+      RequestBuilder rb = MockMvcRequestBuilders.put("/applications/1/unhandle").accept(MediaType.APPLICATION_JSON);
+      MvcResult res = mvc.perform(rb).andReturn();
+      String expected = "{ \"id\": 1, \"person\": { \"id\": 4, \"name\": \"Per\", \"surname\": \"Strand\", \"ssn\": \"19671212-1211\", \"email\": \"per@strand.kth.se\" }, \"competenceProfiles\": [ { \"id\": 7, \"competence\": { \"name\": \"Korvgrillning\" }, \"yearsOfExperience\": 3.5 }, { \"id\": 8, \"competence\": { \"name\": \"Karuselldrift\" }, \"yearsOfExperience\": 2 } ], \"availabilities\": [ { \"id\": 5, \"fromDate\": \"2014-02-23\", \"toDate\": \"2014-05-25\" }, { \"id\": 6, \"fromDate\": \"2014-07-10\", \"toDate\": \"2014-08-10\" } ], \"status\": { \"name\": \"UNHANDLED\" } }";
+      JSONAssert.assertEquals(expected, res.getResponse().getContentAsString(), false);
+      //Assert.assertEquals(expected, res.getResponse().getContentAsString());
+   }
 }
