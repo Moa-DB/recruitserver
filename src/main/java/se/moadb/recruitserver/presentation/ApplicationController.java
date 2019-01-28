@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import se.moadb.recruitserver.application.ApplicationService;
 import se.moadb.recruitserver.domain.Application;
 
+import java.util.List;
+
 /**
  * Entry point for REST requests concerning applications.
  * Implemented methods:
@@ -56,7 +58,9 @@ public class ApplicationController {
     * All keys are optional, that is, you can specify none, one, or any number of them together.
     */
    @GetMapping
-   public String getApplications() {return "hej";}
+   public List<Application> getApplications() {
+      return applicationService.getAllApplications();
+   }
 
    /**
     * Change status of an application to "accepted"
