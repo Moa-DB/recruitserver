@@ -72,6 +72,7 @@ public class ApplicationService  {
       } catch (NoSuchElementException e) {
          throw new EntityDoesNotExistException("application", id);
       }
+   }
    /**
     * Finds all applications
     * @return all applications
