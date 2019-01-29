@@ -16,10 +16,10 @@ public class Application {
     @ManyToOne
     private Person person;
 
-    @OneToMany(cascade = CascadeType.MERGE) //to implicitly save new profiles that are created on POST
+    @OneToMany(cascade = CascadeType.ALL) //to implicitly save new profiles that are created on POST
     private Collection<CompetenceProfile> competenceProfiles;
 
-    @OneToMany(cascade = CascadeType.MERGE) //see competenceprofiles on why cascade
+    @OneToMany(cascade = CascadeType.ALL) //see competenceprofiles on why cascade
     private Collection<Availability> availabilities;
 
     @ManyToOne

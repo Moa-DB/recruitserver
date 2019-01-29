@@ -64,6 +64,7 @@ public class DataLoader implements ApplicationRunner {
         //Reads value from environment variable which can be set in Travis and Heroku if migration is wanted.
         String migrate = System.getenv("MIGRATE");
         //migrate = "TRUE";
+        //migrate = "FALSE";
 
         if(migrate.equals("TRUE")){
             runSqlFromFile("oldDB.sql");
