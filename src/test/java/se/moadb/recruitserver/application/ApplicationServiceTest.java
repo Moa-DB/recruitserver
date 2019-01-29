@@ -14,6 +14,8 @@ import se.moadb.recruitserver.presentation.ApplicationPostRequest;
 import se.moadb.recruitserver.presentation.AvailabilityInPostRequest;
 import se.moadb.recruitserver.presentation.CompetenceInPostRequest;
 import se.moadb.recruitserver.repository.ApplicationRepository;
+import se.moadb.recruitserver.repository.CompetenceRepository;
+import se.moadb.recruitserver.repository.PersonRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
 import java.sql.Date;
@@ -36,15 +38,25 @@ public class ApplicationServiceTest {
    private ApplicationRepository applicationRepository;
    @MockBean
    private StatusRepository statusRepository;
+   @MockBean
+   private CompetenceRepository competenceRepository;
+   @MockBean
+   private PersonRepository personRepository;
+   @MockBean
+   private SecurityService securityService;
 
    private Application unhandledapp;
    private Application acceptedapp;
    private Application rejectedapp;
    private ApplicationPostRequest apr;
+   private User user;
+   private String username;
+   private Person p;
+   private Competence c1;
    @Before
    public void setUp() {
-      Person p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
-      Competence c1 = new Competence("Korvgrillning");
+      p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
+      c1 = new Competence("Korvgrillning");
       CompetenceProfile cp1 = new CompetenceProfile(c1, 3.5);
       cp1.setId(7);
       ArrayList<CompetenceProfile> cplist = new ArrayList<>();
@@ -61,13 +73,16 @@ public class ApplicationServiceTest {
       acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"));
       rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"));
 
-      CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 5);
-      AvailabilityInPostRequest aipr = new AvailabilityInPostRequest(new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
+      CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 5.0);
+      AvailabilityInPostRequest aipr = new AvailabilityInPostRequest(from, to);
       List<CompetenceInPostRequest> lc = new ArrayList<>();
       List<AvailabilityInPostRequest> la = new ArrayList<>();
       lc.add(cipr);
       la.add(aipr);
       apr = new ApplicationPostRequest(lc, la);
+
+      username = "username";
+      user = new User(username, "pass", new ArrayList<>());
    }
 
    @Test
@@ -128,40 +143,72 @@ public class ApplicationServiceTest {
 
       applicationService.accept(10);
    }
+   @Test
+   public void saveapplication_shouldReturnSavedApplication() throws Exception {
+      Application expected = unhandledapp;
+
+      Mockito.when(securityService.getUser(username)).thenReturn(user);
+      Mockito.when(personRepository.findByUser(user)).thenReturn(p);
+      Mockito.when(competenceRepository.findByName("Korvgrillning")).thenReturn(c1);
+      Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
+      Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(unhandledapp);
+
+      Application result = applicationService.saveApplication(apr, username);
+      Assert.assertEquals(expected, result);
+   }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutAvailable_shouldThrowException() throws Exception {
       ApplicationPostRequest a = apr;
       a.setAvailable(new ArrayList<>());
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
    }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutCompetences_shouldThrowException() throws Exception {
       ApplicationPostRequest a = apr;
       a.setCompetences(new ArrayList<>());
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
    }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutCompetenceKey_shouldThrowException() throws Exception {
       ApplicationPostRequest a = apr;
       a.getCompetences().get(0).setCompetence(null);
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
    }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutYearsOfExperienceKey_shouldThrowException() throws Exception {
+      Mockito.when(personRepository.findByUser(any(User.class))).thenReturn(new Person());
+      Mockito.when(competenceRepository.findByName(any(String.class))).thenReturn(new Competence());
       ApplicationPostRequest a = apr;
       a.getCompetences().get(0).setYears_of_experience(null);
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
    }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutFromKey_shouldThrowException() throws Exception {
+      Mockito.when(personRepository.findByUser(any(User.class))).thenReturn(new Person());
+      Mockito.when(competenceRepository.findByName(any(String.class))).thenReturn(new Competence());
       ApplicationPostRequest a = apr;
       a.getAvailable().get(0).setFrom(null);
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
    }
    @Test(expected = InvalidPostRequestException.class)
    public void makePostRequestWithoutToKey_shouldThrowException() throws Exception {
+      Mockito.when(personRepository.findByUser(any(User.class))).thenReturn(new Person());
+      Mockito.when(competenceRepository.findByName(any(String.class))).thenReturn(new Competence());
       ApplicationPostRequest a = apr;
       a.getAvailable().get(0).setTo(null);
-      applicationService.saveApplication(apr);
+      applicationService.saveApplication(apr, username);
+   }
+   @Test(expected = EntityDoesNotExistException.class)
+   public void makePostRequestWithInvalidCompetence_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      Mockito.when(competenceRepository.findByName("Korvgrillning")).thenReturn(null);
+      applicationService.saveApplication(apr, username);
+   }
+   @Test(expected = RuntimeException.class)
+   public void makePostRequestCannotFindPerson_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      Mockito.when(securityService.getUser(username)).thenReturn(user);
+      Mockito.when(personRepository.findByUser(user)).thenReturn(null);
+      applicationService.saveApplication(apr, username);
    }
 }

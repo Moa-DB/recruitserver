@@ -1,36 +1,36 @@
 package se.moadb.recruitserver.presentation;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 /**
  * Represents a JSON object containing availability dates in a POST request.
  */
 public class AvailabilityInPostRequest {
 
-   private Timestamp from;
-   private Timestamp to;
+   private Date from;
+   private Date to;
 
    public AvailabilityInPostRequest() {
 
    }
-   public AvailabilityInPostRequest(Timestamp from, Timestamp to) {
+   public AvailabilityInPostRequest(Date from, Date to) {
       this.from = from;
       this.to = to;
    }
 
-   public Timestamp getFrom() {
+   public Date getFrom() {
       return from;
    }
 
-   public void setFrom(Timestamp from) {
+   public void setFrom(Date from) {
       this.from = from;
    }
 
-   public Timestamp getTo() {
+   public Date getTo() {
       return to;
    }
 
-   public void setTo(Timestamp to) {
+   public void setTo(Date to) {
       this.to = to;
    }
 }

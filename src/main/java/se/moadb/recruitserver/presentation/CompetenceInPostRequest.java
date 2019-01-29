@@ -6,12 +6,12 @@ package se.moadb.recruitserver.presentation;
 public class CompetenceInPostRequest {
 
    private String competence;
-   private Integer years_of_experience;
+   private Double years_of_experience;
 
    public CompetenceInPostRequest() {
 
    }
-   public CompetenceInPostRequest(String competence, Integer years_of_experience) {
+   public CompetenceInPostRequest(String competence, Double years_of_experience) {
       this.competence = competence;
       this.years_of_experience = years_of_experience;
    }
@@ -24,11 +24,11 @@ public class CompetenceInPostRequest {
       this.competence = competence;
    }
 
-   public Integer getYears_of_experience() {
+   public Double getYears_of_experience() {
       return years_of_experience;
    }
 
-   public void setYears_of_experience(Integer years_of_experience) {
+   public void setYears_of_experience(Double years_of_experience) {
       this.years_of_experience = years_of_experience;
    }
 }

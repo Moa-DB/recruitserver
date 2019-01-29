@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import se.moadb.recruitserver.application.ApplicationService;
 import se.moadb.recruitserver.domain.Application;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +44,8 @@ public class ApplicationController {
     * }
     */
    @PostMapping
-   public Application makeApplication(@RequestBody ApplicationPostRequest applicationPostRequest) {
-      return applicationService.saveApplication(applicationPostRequest);
+   public Application makeApplication(@RequestBody ApplicationPostRequest applicationPostRequest, Principal principal) {
+      return applicationService.saveApplication(applicationPostRequest, principal.getName());
    }
 
    /**
