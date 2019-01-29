@@ -43,7 +43,9 @@ public class ApplicationController {
     * }
     */
    @PostMapping
-   public void makeApplication() {}
+   public Application makeApplication(@RequestBody ApplicationPostRequest applicationPostRequest) {
+      return applicationService.saveApplication(applicationPostRequest);
+   }
 
    /**
     * Get applications.

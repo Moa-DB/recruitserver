@@ -10,11 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.moadb.recruitserver.domain.*;
+import se.moadb.recruitserver.presentation.ApplicationPostRequest;
+import se.moadb.recruitserver.presentation.AvailabilityInPostRequest;
+import se.moadb.recruitserver.presentation.CompetenceInPostRequest;
 import se.moadb.recruitserver.repository.ApplicationRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -35,6 +40,7 @@ public class ApplicationServiceTest {
    private Application unhandledapp;
    private Application acceptedapp;
    private Application rejectedapp;
+   private ApplicationPostRequest apr;
    @Before
    public void setUp() {
       Person p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
@@ -54,6 +60,14 @@ public class ApplicationServiceTest {
       unhandledapp.setId(1);
       acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"));
       rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"));
+
+      CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 5);
+      AvailabilityInPostRequest aipr = new AvailabilityInPostRequest(new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
+      List<CompetenceInPostRequest> lc = new ArrayList<>();
+      List<AvailabilityInPostRequest> la = new ArrayList<>();
+      lc.add(cipr);
+      la.add(aipr);
+      apr = new ApplicationPostRequest(lc, la);
    }
 
    @Test
@@ -113,5 +127,41 @@ public class ApplicationServiceTest {
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
       applicationService.accept(10);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutAvailable_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.setAvailable(new ArrayList<>());
+      applicationService.saveApplication(apr);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutCompetences_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.setCompetences(new ArrayList<>());
+      applicationService.saveApplication(apr);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutCompetenceKey_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.getCompetences().get(0).setCompetence(null);
+      applicationService.saveApplication(apr);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutYearsOfExperienceKey_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.getCompetences().get(0).setYears_of_experience(null);
+      applicationService.saveApplication(apr);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutFromKey_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.getAvailable().get(0).setFrom(null);
+      applicationService.saveApplication(apr);
+   }
+   @Test(expected = InvalidPostRequestException.class)
+   public void makePostRequestWithoutToKey_shouldThrowException() throws Exception {
+      ApplicationPostRequest a = apr;
+      a.getAvailable().get(0).setTo(null);
+      applicationService.saveApplication(apr);
    }
 }
