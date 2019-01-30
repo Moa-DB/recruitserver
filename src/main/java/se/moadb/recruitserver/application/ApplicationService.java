@@ -104,9 +104,9 @@ public class ApplicationService  {
     */
    public List<Application> getApplications(Map<String, Object> request) {
 
-      System.out.println(request.toString()); //TODO remove this printout
+      //TODO remove this printout
+//      System.out.println(request.toString());
 
-//      List<Application> applications = new ArrayList<>();
       List<Application> applications = applicationRepository.findAll();
 
 
@@ -136,11 +136,11 @@ public class ApplicationService  {
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
 
       //TODO remove this printout
-      System.out.println("from time: " + fromTime + "\n" +
-              "to time: " + toTime + "\n" +
-              "name: " + name + "\n" +
-              "competence: " + competence + "\n" +
-              "application date: " + applicationDate);
+//      System.out.println("from time: " + fromTime + "\n" +
+//              "to time: " + toTime + "\n" +
+//              "name: " + name + "\n" +
+//              "competence: " + competence + "\n" +
+//              "application date: " + applicationDate);
 
       /* remove all that are earlier than from_time */
       if (!fromTime.equals("") && !toTime.equals("")){
@@ -160,8 +160,8 @@ public class ApplicationService  {
          java.sql.Date sqlEndDate = new java.sql.Date(toDate.getTime());
 
          //TODO remove this printout
-         System.out.println("from date: " + sqlStartDate + "\n" +
-                 "to date: " + sqlEndDate);
+//         System.out.println("from date: " + sqlStartDate + "\n" +
+//                 "to date: " + sqlEndDate);
 
          /* it doesn't seem to matter if using util.Date or sql.Date get the same availabilities */
          /* find all availabilities that match the dates */
@@ -171,14 +171,14 @@ public class ApplicationService  {
          List<Application> fromToApplications = applicationRepository.findAllByAvailabilitiesIn(availabilities);
 
          //TODO remove this printout
-         System.out.println("all applications");
-         applications.forEach(application -> {
-            System.out.println(application.getId());
-         });
-         System.out.println("from to applications:");
-         fromToApplications.forEach(application -> {
-            System.out.println(application.getId());
-         });
+//         System.out.println("all applications");
+//         applications.forEach(application -> {
+//            System.out.println(application.getId());
+//         });
+//         System.out.println("from to applications:");
+//         fromToApplications.forEach(application -> {
+//            System.out.println(application.getId());
+//         });
 
 
          /* remove applications that doesn't match the from to criteria */
@@ -192,10 +192,10 @@ public class ApplicationService  {
          }
 
          //TODO remove this printout
-         /* check whats left in applications */
-         applications.forEach(application -> {
-            System.out.println("application " + application.getId());
-         });
+//         /* check whats left in applications */
+//         applications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
 
       }
 
@@ -208,9 +208,9 @@ public class ApplicationService  {
 
 
          //TODO remove this printout
-         nameApplications.forEach(application -> {
-            System.out.println("application " + application.getId());
-         });
+//         nameApplications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
 
          /* remove applications that doesn't match the name criteria */
          Iterator<Application> iterator = applications.iterator();
@@ -225,9 +225,9 @@ public class ApplicationService  {
 
          //TODO remove this printout
          /* check whats left in applications */
-         applications.forEach(application -> {
-            System.out.println("application " + application.getId());
-         });
+//         applications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
 
       }
 
@@ -243,9 +243,9 @@ public class ApplicationService  {
          List<Application> competenceApplications = applicationRepository.findAllByCompetenceProfilesIn(competenceProfiles);
 
          //TODO remove printout
-         competenceApplications.forEach(c -> {
-            System.out.println("competence application id: " + c.getId());
-         });
+//         competenceApplications.forEach(c -> {
+//            System.out.println("competence application id: " + c.getId());
+//         });
 
          /* remove applications that doesn't match the competence criteria */
          Iterator<Application> iterator = applications.iterator();
@@ -273,24 +273,24 @@ public class ApplicationService  {
 
          java.sql.Date sqlAppDate = new java.sql.Date(appDate.getTime());
 
+         System.out.println("SQL Date " + sqlAppDate);
+
          List<Application> dateApplications = applicationRepository.findAllByDate(sqlAppDate);
 
          //TODO remove printout
-         dateApplications.forEach(d -> {
-            System.out.println("application date: " + d.getId());
-         });
+//         dateApplications.forEach(d -> {
+//            System.out.println("application date: " + d.getId());
+//         });
 
          /* remove applications that doesn't match the competence criteria */
-         //TODO how to do this right
-
-//         Iterator<Application> iterator = applications.iterator();
-//         while(iterator.hasNext()){
-//            Application app = iterator.next();
-//            if (!dateApplications.contains(app)) {
-//               System.out.println("Removing " + app.getId());
-//               iterator.remove();
-//            }
-//         }
+         Iterator<Application> iterator = applications.iterator();
+         while(iterator.hasNext()){
+            Application app = iterator.next();
+            if (!dateApplications.contains(app)) {
+               System.out.println("Removing " + app.getId());
+               iterator.remove();
+            }
+         }
 
 
       }
