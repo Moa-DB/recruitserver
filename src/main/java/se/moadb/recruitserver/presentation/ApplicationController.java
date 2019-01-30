@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import se.moadb.recruitserver.application.ApplicationService;
 import se.moadb.recruitserver.domain.Application;
 
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,8 @@ public class ApplicationController {
     * }
     * All keys are optional, that is, you can specify none, one, or any number of them together.
     */
-   @GetMapping
-   public List<Application> getApplications(Map<String, Object> request) {
+   @PostMapping("/filter")
+   public List<Application> getApplications(@RequestBody Map<String, Object> request) {
       return applicationService.getApplications(request);
    }
 

@@ -4,16 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import se.moadb.recruitserver.domain.*;
+
 import se.moadb.recruitserver.presentation.ApplicationPostRequest;
 import se.moadb.recruitserver.presentation.AvailabilityInPostRequest;
 import se.moadb.recruitserver.presentation.CompetenceInPostRequest;
-import se.moadb.recruitserver.repository.ApplicationRepository;
-import se.moadb.recruitserver.repository.CompetenceRepository;
-import se.moadb.recruitserver.repository.PersonRepository;
-import se.moadb.recruitserver.repository.StatusRepository;
+import se.moadb.recruitserver.repository.*;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -30,9 +31,13 @@ public class ApplicationService  {
    @Autowired
    private StatusRepository statusRepository;
    @Autowired
+   private AvailabilityRepository availabilityRepository;
+   @Autowired
    private CompetenceRepository competenceRepository;
    @Autowired
    private PersonRepository personRepository;
+   @Autowired
+   private CompetenceProfileRepository competenceProfileRepository;
 
    /**
     * Accept an application.
@@ -97,9 +102,202 @@ public class ApplicationService  {
     * }
     * @return the requested applications
     */
-   public List<Application> getApplications(Map<String, Object> request){
+   public List<Application> getApplications(Map<String, Object> request) {
 
-      return applicationRepository.findAll();
+      //TODO remove this printout
+//      System.out.println(request.toString());
+
+      List<Application> applications = applicationRepository.findAll();
+
+
+      /* get from_time if present, else empty string */
+      String fromTime = request.entrySet().stream()
+              .filter(e -> e.getKey().equals("from_time"))
+              .map(Map.Entry::getValue).findFirst().orElse("").toString();
+
+      /* get to_time if present, else empty string */
+      String toTime = request.entrySet().stream()
+              .filter(e -> e.getKey().equals("to_time"))
+              .map(Map.Entry::getValue).findFirst().orElse("").toString();
+
+      /* get name if present, else empty string */
+      String name = request.entrySet().stream()
+              .filter(e -> e.getKey().equals("name"))
+              .map(Map.Entry::getValue).findFirst().orElse("").toString();
+
+      /* get name if present, else empty string */
+      String competence = request.entrySet().stream()
+              .filter(e -> e.getKey().equals("competence"))
+              .map(Map.Entry::getValue).findFirst().orElse("").toString();
+
+      /* get application_date if present, else empty string */
+      String applicationDate = request.entrySet().stream()
+              .filter(e -> e.getKey().equals("application_date"))
+              .map(Map.Entry::getValue).findFirst().orElse("").toString();
+
+      //TODO remove this printout
+//      System.out.println("from time: " + fromTime + "\n" +
+//              "to time: " + toTime + "\n" +
+//              "name: " + name + "\n" +
+//              "competence: " + competence + "\n" +
+//              "application date: " + applicationDate);
+
+      /* remove all that are earlier than from_time */
+      if (!fromTime.equals("") && !toTime.equals("")){
+
+         /* convert String dates to Date dates */
+         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+         java.util.Date fromDate = null;
+         java.util.Date toDate = null;
+         try {
+            fromDate = format.parse (fromTime);
+            toDate = format.parse(toTime);
+         } catch (ParseException e) {
+            e.printStackTrace();
+         }
+
+         java.sql.Date sqlStartDate = new java.sql.Date(fromDate.getTime());
+         java.sql.Date sqlEndDate = new java.sql.Date(toDate.getTime());
+
+         //TODO remove this printout
+//         System.out.println("from date: " + sqlStartDate + "\n" +
+//                 "to date: " + sqlEndDate);
+
+         /* it doesn't seem to matter if using util.Date or sql.Date get the same availabilities */
+         /* find all availabilities that match the dates */
+         List<Availability> availabilities = availabilityRepository.findAllByFromDateBetween(sqlStartDate, sqlEndDate);
+
+         /* get a list with the matching applications */
+         List<Application> fromToApplications = applicationRepository.findAllByAvailabilitiesIn(availabilities);
+
+         //TODO remove this printout
+//         System.out.println("all applications");
+//         applications.forEach(application -> {
+//            System.out.println(application.getId());
+//         });
+//         System.out.println("from to applications:");
+//         fromToApplications.forEach(application -> {
+//            System.out.println(application.getId());
+//         });
+
+
+         /* remove applications that doesn't match the from to criteria */
+         Iterator<Application> iterator = applications.iterator();
+         while(iterator.hasNext()){
+            Application app = iterator.next();
+            if (!fromToApplications.contains(app)) {
+               System.out.println("Removing " + app.getId());
+               iterator.remove();
+            }
+         }
+
+         //TODO remove this printout
+//         /* check whats left in applications */
+//         applications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
+
+      }
+
+      /* remove all that doesn't contain name */
+      if (!name.equals("")){
+
+         /* get the person and then find the matching applications */
+         Person person = personRepository.findByName(name);
+         List<Application> nameApplications = applicationRepository.findAllByPerson(person);
+
+
+         //TODO remove this printout
+//         nameApplications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
+
+         /* remove applications that doesn't match the name criteria */
+         Iterator<Application> iterator = applications.iterator();
+         while(iterator.hasNext()){
+            Application app = iterator.next();
+            if (!nameApplications.contains(app)) {
+               System.out.println("Removing " + app.getId());
+               iterator.remove();
+            }
+         }
+
+
+         //TODO remove this printout
+         /* check whats left in applications */
+//         applications.forEach(application -> {
+//            System.out.println("application " + application.getId());
+//         });
+
+      }
+
+      /* remove all that doesn't contain competence */
+      if (!competence.equals("")){
+         /* find the competence  */
+         Competence comp = competenceRepository.findByName(competence);
+
+         /* find competence profiles */
+         List<CompetenceProfile> competenceProfiles = competenceProfileRepository.findByCompetence(comp);
+
+         /* get matching applications */
+         List<Application> competenceApplications = applicationRepository.findAllByCompetenceProfilesIn(competenceProfiles);
+
+         //TODO remove printout
+//         competenceApplications.forEach(c -> {
+//            System.out.println("competence application id: " + c.getId());
+//         });
+
+         /* remove applications that doesn't match the competence criteria */
+         Iterator<Application> iterator = applications.iterator();
+         while(iterator.hasNext()){
+            Application app = iterator.next();
+            if (!competenceApplications.contains(app)) {
+               System.out.println("Removing " + app.getId());
+               iterator.remove();
+            }
+         }
+
+      }
+
+      /* remove all that doesn't contain application_date */
+      if (!applicationDate.equals("")){
+
+         /* convert String dates to Date dates */
+         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+         java.util.Date appDate = null;
+         try {
+            appDate = format.parse (applicationDate);
+         } catch (ParseException e) {
+            e.printStackTrace();
+         }
+
+         java.sql.Date sqlAppDate = new java.sql.Date(appDate.getTime());
+
+         System.out.println("SQL Date " + sqlAppDate);
+
+         List<Application> dateApplications = applicationRepository.findAllByDate(sqlAppDate);
+
+         //TODO remove printout
+//         dateApplications.forEach(d -> {
+//            System.out.println("application date: " + d.getId());
+//         });
+
+         /* remove applications that doesn't match the competence criteria */
+         Iterator<Application> iterator = applications.iterator();
+         while(iterator.hasNext()){
+            Application app = iterator.next();
+            if (!dateApplications.contains(app)) {
+               System.out.println("Removing " + app.getId());
+               iterator.remove();
+            }
+         }
+
+
+      }
+
+
+
+      return applications;
    }
 
    /**
