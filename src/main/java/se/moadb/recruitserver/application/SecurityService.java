@@ -40,8 +40,14 @@ public class SecurityService implements UserDetailsService {
         return user;
     }
 
-
-
+    /**
+     * Get a User by username.
+     * @param username
+     * @return The User entity
+     */
+    public User getUser(String username) {
+        return repository.findByUsername(username);
+    }
     public User saveUser(String username, String password, String role) {
             Set<Role> authorities = new HashSet<>(Arrays.asList(
                     roleService.findByName(role)

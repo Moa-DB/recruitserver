@@ -15,7 +15,10 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 
-
+/**
+ * DataLoader loads the database with data when the application is started. The environment variable "MIGRATE" set on the server
+ * determines if old data shall be migrated in to the current database.
+ */
 @Component
 public class DataLoader implements ApplicationRunner {
 
@@ -64,7 +67,7 @@ public class DataLoader implements ApplicationRunner {
         //Reads value from environment variable which can be set in Travis and Heroku if migration is wanted.
         String migrate = System.getenv("MIGRATE");
         //migrate = "TRUE";
-        migrate = "FALSE";
+        //migrate = "FALSE";
 
         if(migrate.equals("TRUE")){
             runSqlFromFile("oldDB.sql");
@@ -142,6 +145,7 @@ public class DataLoader implements ApplicationRunner {
         Person applicant;
         Role role = roleRepository.findByName("applicant");
         Status status = statusRepository.findByName("UNHANDLED");
+        java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
 
         for (Map.Entry<Long, Long> person : person.entrySet()){
             applicant = personRepository.findById(person.getValue());
@@ -158,12 +162,18 @@ public class DataLoader implements ApplicationRunner {
                         availabilities.add(availabilityRepository.findById(availabilitys.getKey()));
                     }
                 }
-                applicationRepository.save(new Application(applicant, competenceProfiles, availabilities, status));
+                application = applicationRepository.save(new Application(applicant, null, null, status, date));
+                application.setAvailabilities(availabilities);
+                application.setCompetenceProfiles(competenceProfiles);
+                applicationRepository.save(application);
             }
         }
 
     }
 
+    /**
+     * Removes old tables used when migrating old data.
+     */
     private void deleteOldTables(){
         jdbcTemplate.execute("DROP TABLE OLDcompetence");
         jdbcTemplate.execute("DROP TABLE OLDrole");
