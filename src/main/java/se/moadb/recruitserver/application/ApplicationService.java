@@ -17,7 +17,6 @@ import se.moadb.recruitserver.repository.StatusRepository;
 import se.moadb.recruitserver.repository.AvailabilityRepository;
 
 import java.sql.Date;
-import java.util.Date;
 import java.util.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -151,11 +150,11 @@ public class ApplicationService  {
 
          /* convert String dates to Date dates */
          SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-         java.sql.Date fromDate = null;
-         java.sql.Date toDate = null;
+         Date fromDate = null;
+         Date toDate = null;
          try {
-            fromDate = format.parse (fromTime);
-            toDate = format.parse(toTime);
+            fromDate = (Date) format.parse (fromTime);
+            toDate = (Date) format.parse(toTime);
          } catch (ParseException e) {
             e.printStackTrace();
          }
