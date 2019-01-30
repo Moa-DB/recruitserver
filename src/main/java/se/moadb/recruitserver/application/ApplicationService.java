@@ -17,6 +17,7 @@ import se.moadb.recruitserver.repository.StatusRepository;
 import se.moadb.recruitserver.repository.AvailabilityRepository;
 
 import java.sql.Date;
+import java.util.Date;
 import java.util.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
