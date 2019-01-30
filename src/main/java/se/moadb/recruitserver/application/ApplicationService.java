@@ -151,8 +151,8 @@ public class ApplicationService  {
 
          /* convert String dates to Date dates */
          SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-         Date fromDate = null;
-         Date toDate = null;
+         java.sql.Date fromDate = null;
+         java.sql.Date toDate = null;
          try {
             fromDate = format.parse (fromTime);
             toDate = format.parse(toTime);
