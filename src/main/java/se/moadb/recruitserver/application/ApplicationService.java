@@ -12,6 +12,7 @@ import se.moadb.recruitserver.presentation.AvailabilityInPostRequest;
 import se.moadb.recruitserver.presentation.CompetenceInPostRequest;
 import se.moadb.recruitserver.repository.*;
 
+import javax.persistence.OptimisticLockException;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,51 +44,31 @@ public class ApplicationService  {
     * Accept an application.
     * @param id, referring to the application
     * @return The accepted application.
+    * @throws EntityDoesNotExistException, when accepting a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application accept(long id) {
-
-      Status accepted = statusRepository.findByName("ACCEPTED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(accepted);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application accept(long id) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.ACCEPTED);
    }
    /**
     * Reject an application.
     * @param id, referring to the application
     * @return The rejected application.
+    * @throws EntityDoesNotExistException, when rejecting a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application reject(long id) {
-
-      Status rejected = statusRepository.findByName("REJECTED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(rejected);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application reject(long id) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.REJECTED);
    }
    /**
     * Unhandle an application.
     * @param id, referring to the application
     * @return The unhandled application.
+    * @throws EntityDoesNotExistException, when unhandling a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application unhandle(long id) {
-      Status unhandled = statusRepository.findByName("UNHANDLED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(unhandled);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application unhandle(long id) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.UNHANDLED);
    }
    /**
     * Finds applications
@@ -374,5 +355,19 @@ public class ApplicationService  {
             throw new InvalidPostRequestException("to", "available");
          }
       }
+   }
+   private Application changeApplicationStatus(long applicationId, String statusName) throws EntityDoesNotExistException, ConcurrentAccessException {
+      Status status = statusRepository.findByName(statusName);
+
+      try {
+         Application application = applicationRepository.findById(applicationId).get();
+         application.setStatus(status);
+         return applicationRepository.save(application);
+      } catch (NoSuchElementException e) {
+         throw new EntityDoesNotExistException("application", applicationId);
+      } catch (OptimisticLockException e) {
+         throw new ConcurrentAccessException("application", "status");
+      }
+
    }
 }

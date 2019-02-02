@@ -6,6 +6,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 import se.moadb.recruitserver.domain.*;
 import se.moadb.recruitserver.repository.*;
@@ -67,7 +69,7 @@ public class DataLoader implements ApplicationRunner {
         //Reads value from environment variable which can be set in Travis and Heroku if migration is wanted.
         String migrate = System.getenv("MIGRATE");
         //migrate = "TRUE";
-        //migrate = "FALSE";
+        migrate = "FALSE";
 
         if(migrate.equals("TRUE")){
             runSqlFromFile("oldDB.sql");
@@ -163,6 +165,8 @@ public class DataLoader implements ApplicationRunner {
                     }
                 }
                 application = applicationRepository.save(new Application(applicant, null, null, status, date));
+
+                application = applicationRepository.findById(application.getId()).get(); //without re-finding this, the we get an optimistic locking error cause version changed within transaction. now new transaction starts and were fine
                 application.setAvailabilities(availabilities);
                 application.setCompetenceProfiles(competenceProfiles);
                 applicationRepository.save(application);
