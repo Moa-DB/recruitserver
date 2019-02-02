@@ -1,5 +1,6 @@
 package se.moadb.recruitserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +22,7 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
 
+    @JsonIgnore
     @NotNull
     private String password;
 
