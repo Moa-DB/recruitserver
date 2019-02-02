@@ -334,7 +334,11 @@ public class ApplicationService  {
          availabilities.add(availability);
       }
       Status status = statusRepository.findByName("UNHANDLED");
-      return new Application(person.get(), competenceProfiles, availabilities, status);
+      Date today = getCurrentDate();
+      return new Application(person.get(), competenceProfiles, availabilities, status, today);
+   }
+   private Date getCurrentDate() {
+      return new Date(Calendar.getInstance().getTime().getTime());
    }
    private void validatePostRequest(ApplicationPostRequest applicationPostRequest) throws InvalidPostRequestException, EntityDoesNotExistException {
       //check that no mandatory key or list is not present
