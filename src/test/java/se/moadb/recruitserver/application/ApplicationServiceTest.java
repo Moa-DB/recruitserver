@@ -18,6 +18,7 @@ import se.moadb.recruitserver.repository.CompetenceRepository;
 import se.moadb.recruitserver.repository.PersonRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
+import javax.persistence.OptimisticLockException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -211,5 +212,32 @@ public class ApplicationServiceTest {
       Mockito.when(securityService.getUser(username)).thenReturn(user);
       Mockito.when(personRepository.findByUser(user)).thenReturn(null);
       applicationService.saveApplication(apr, username);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void acceptOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.ACCEPTED)).thenReturn(new Status(Status.ACCEPTED));
+      Application a = acceptedapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.accept(10);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void rejectOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.REJECTED)).thenReturn(new Status(Status.REJECTED));
+      Application a = rejectedapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.reject(10);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void unhandleOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.UNHANDLED)).thenReturn(new Status(Status.UNHANDLED));
+      Application a = unhandledapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.unhandle(10);
    }
 }
