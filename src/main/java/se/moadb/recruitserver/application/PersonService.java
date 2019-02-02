@@ -39,7 +39,7 @@ public class PersonService {
         User user = userDetailsService.saveUser(registrationPostRequest.getUsername(), registrationPostRequest.getPassword(),
                 registrationPostRequest.getRole());
         Person person = new Person(registrationPostRequest.getFirstName(), registrationPostRequest.getLastName(),
-                        registrationPostRequest.getEmail(), registrationPostRequest.getDateOfBirth(), user);
+                registrationPostRequest.getDateOfBirth(), registrationPostRequest.getEmail(), user);
         return personRepository.save(person);
     }
 
