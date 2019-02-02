@@ -67,11 +67,12 @@ public class ApplicationServiceTest {
       Availability a1 = new Availability(from, to);
       a1.setId(5);
       alist.add(a1);
+      Date appDate = Date.valueOf("2013-05-05");
 
-      unhandledapp = new Application(p, cplist, alist, new Status("UNHANDLED"));
+      unhandledapp = new Application(p, cplist, alist, new Status("UNHANDLED"), appDate);
       unhandledapp.setId(1);
-      acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"));
-      rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"));
+      acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"), appDate);
+      rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"), appDate);
 
       CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 5.0);
       AvailabilityInPostRequest aipr = new AvailabilityInPostRequest(from, to);
