@@ -69,25 +69,31 @@ public class ApplicationController {
 
    /**
     * Change status of an application to "accepted"
+    * @throws se.moadb.recruitserver.application.ConcurrentAccessException: HTTP 409: Conflict, if accessing an application that was simultaneously altered by another user.
     */
    @PutMapping("/{id}/accept")
-   public Application acceptApplication(@PathVariable long id) {
-      return applicationService.accept(id);
+   public Application acceptApplication(@PathVariable long id, @RequestBody ApplicationStatusPutRequest applicationStatusPutRequest) {
+      String oldStatusToCompareWith = applicationStatusPutRequest.getStatus();
+      return applicationService.accept(id, oldStatusToCompareWith);
    }
 
    /**
     * Change status of an application to "rejected"
+    * @throws se.moadb.recruitserver.application.ConcurrentAccessException: HTTP 409: Conflict, if accessing an application that was simultaneously altered by another user.
     */
    @PutMapping("/{id}/reject")
-   public Application rejectApplication(@PathVariable long id) {
-      return applicationService.reject(id);
+   public Application rejectApplication(@PathVariable long id, @RequestBody ApplicationStatusPutRequest applicationStatusPutRequest) {
+      String oldStatusToCompareWith = applicationStatusPutRequest.getStatus();
+      return applicationService.reject(id, oldStatusToCompareWith);
    }
 
    /**
     * Change status of an application to "unhandled"
+    * @throws se.moadb.recruitserver.application.ConcurrentAccessException: HTTP 409: Conflict, if accessing an application that was simultaneously altered by another user.
     */
    @PutMapping("/{id}/unhandle")
-   public Application unhandleApplication(@PathVariable long id) {
-      return applicationService.unhandle(id);
+   public Application unhandleApplication(@PathVariable long id, @RequestBody ApplicationStatusPutRequest applicationStatusPutRequest) {
+      String oldStatusToCompareWith = applicationStatusPutRequest.getStatus();
+      return applicationService.unhandle(id, oldStatusToCompareWith);
    }
 }

@@ -96,7 +96,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(accepted));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(unhandledapp);
-      Application result = applicationService.unhandle(1);
+      Application result = applicationService.unhandle(1, Status.ACCEPTED);
       Assert.assertEquals(expected, result);
 
    }
@@ -105,7 +105,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.accept(10, Status.UNHANDLED);
    }
    @Test
    public void accept_shouldReturnAcceptedApp() throws Exception {
@@ -116,7 +116,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("ACCEPTED")).thenReturn(new Status("ACCEPTED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(unhandled));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(acceptedapp);
-      Application result = applicationService.accept(1);
+      Application result = applicationService.accept(1, Status.UNHANDLED);
       Assert.assertEquals(expected, result);
    }
    @Test(expected = EntityDoesNotExistException.class)
@@ -124,7 +124,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("ACCEPTED")).thenReturn(new Status("ACCEPTED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.accept(10, Status.UNHANDLED);
    }
    @Test
    public void reject_shouldReturnRejectedApp() throws Exception {
@@ -135,7 +135,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(unhandled));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(rejectedapp);
-      Application result = applicationService.accept(1);
+      Application result = applicationService.accept(1, Status.UNHANDLED);
       Assert.assertEquals(expected, result);
    }
    @Test(expected = EntityDoesNotExistException.class)
@@ -143,7 +143,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.reject(10, Status.UNHANDLED);
    }
    @Test
    public void saveapplication_shouldReturnSavedApplication() throws Exception {
@@ -220,7 +220,7 @@ public class ApplicationServiceTest {
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
       Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
 
-      applicationService.accept(10);
+      applicationService.accept(10, Status.UNHANDLED);
    }
    @Test(expected = ConcurrentAccessException.class)
    public void rejectOnLockedApplication_shouldThrowException() throws Exception {
@@ -229,7 +229,7 @@ public class ApplicationServiceTest {
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
       Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
 
-      applicationService.reject(10);
+      applicationService.reject(10, Status.UNHANDLED);
    }
    @Test(expected = ConcurrentAccessException.class)
    public void unhandleOnLockedApplication_shouldThrowException() throws Exception {
@@ -238,6 +238,6 @@ public class ApplicationServiceTest {
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
       Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
 
-      applicationService.unhandle(10);
+      applicationService.unhandle(10, Status.ACCEPTED);
    }
 }
