@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import se.moadb.recruitserver.domain.*;
 
 import se.moadb.recruitserver.presentation.ApplicationPostRequest;
+import se.moadb.recruitserver.presentation.ApplicationStatusPutRequest;
 import se.moadb.recruitserver.presentation.AvailabilityInPostRequest;
 import se.moadb.recruitserver.presentation.CompetenceInPostRequest;
 import se.moadb.recruitserver.repository.*;
 
+import javax.persistence.OptimisticLockException;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,53 +43,48 @@ public class ApplicationService  {
 
    /**
     * Accept an application.
+    * A JSON body should be sent containing:
+    * - "status" : "ACCEPTED" | "REJECTED" | "UNHANDLED"
+    * This key should contain what the client application thinks the current (pre-change) status of the application is.
+    * If this status does not correspond to what is currently in the database, this means someone else is handling the application and the transaction will be aborted.
     * @param id, referring to the application
+    * @param oldStatusToCompareWith, the current status that the client thinks this application has
     * @return The accepted application.
+    * @throws EntityDoesNotExistException, when accepting a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application accept(long id) {
-
-      Status accepted = statusRepository.findByName("ACCEPTED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(accepted);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application accept(long id, String oldStatusToCompareWith) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.ACCEPTED, oldStatusToCompareWith);
    }
    /**
     * Reject an application.
+    * A JSON body should be sent containing:
+    * - "status" : "ACCEPTED" | "REJECTED" | "UNHANDLED"
+    * This key should contain what the client application thinks the current (pre-change) status of the application is.
+    * If this status does not correspond to what is currently in the database, this means someone else is handling the application and the transaction will be aborted.
     * @param id, referring to the application
+    * @param oldStatusToCompareWith, the current status that the client thinks this application has
     * @return The rejected application.
+    * @throws EntityDoesNotExistException, when rejecting a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application reject(long id) {
-
-      Status rejected = statusRepository.findByName("REJECTED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(rejected);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application reject(long id, String oldStatusToCompareWith) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.REJECTED, oldStatusToCompareWith);
    }
    /**
     * Unhandle an application.
+    * A JSON body should be sent containing:
+    * - "status" : "ACCEPTED" | "REJECTED" | "UNHANDLED"
+    * This key should contain what the client application thinks the current (pre-change) status of the application is.
+    * If this status does not correspond to what is currently in the database, this means someone else is handling the application and the transaction will be aborted.
     * @param id, referring to the application
+    * @param oldStatusToCompareWith, the current status that the client thinks this application has
     * @return The unhandled application.
+    * @throws EntityDoesNotExistException, when unhandling a non-existing application.
+    * @throws ConcurrentAccessException, when accessing application simultaneously with another user
     */
-   public Application unhandle(long id) {
-      Status unhandled = statusRepository.findByName("UNHANDLED");
-
-      try {
-         Application application = applicationRepository.findById(id).get();
-         application.setStatus(unhandled);
-         return applicationRepository.save(application);
-      } catch (NoSuchElementException e) {
-         throw new EntityDoesNotExistException("application", id);
-      }
+   public Application unhandle(long id, String oldStatusToCompareWith) throws EntityDoesNotExistException, ConcurrentAccessException {
+      return changeApplicationStatus(id, Status.UNHANDLED, oldStatusToCompareWith);
    }
    /**
     * Finds applications
@@ -373,6 +370,28 @@ public class ApplicationService  {
          if (!to.isPresent()) {
             throw new InvalidPostRequestException("to", "available");
          }
+      }
+   }
+   private Application changeApplicationStatus(long applicationId, String statusName, String oldStatusToCompareWith) throws EntityDoesNotExistException, ConcurrentAccessException {
+      Status status = statusRepository.findByName(statusName);
+
+      try {
+         Application application = applicationRepository.findById(applicationId).get();
+         checkForConflict(application, oldStatusToCompareWith); //íf app was changed by someone else while we were browsing, inform user
+         application.setStatus(status);
+         return applicationRepository.save(application);
+      } catch (NoSuchElementException e) {
+         throw new EntityDoesNotExistException("application", applicationId);
+      } catch (OptimisticLockException e) {
+         throw new ConcurrentAccessException("application", "status");
+      }
+
+   }
+   //if another user accesses and changes status of application before we send our PUT request, warn user and abort
+   private void checkForConflict(Application application, String oldStatusToCompareWith) throws ConcurrentAccessException {
+      String currentStatus = application.getStatus().getName();
+      if (!currentStatus.equals(oldStatusToCompareWith)) {
+         throw new ConcurrentAccessException();
       }
    }
 }

@@ -18,6 +18,7 @@ import se.moadb.recruitserver.repository.CompetenceRepository;
 import se.moadb.recruitserver.repository.PersonRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
+import javax.persistence.OptimisticLockException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(accepted));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(unhandledapp);
-      Application result = applicationService.unhandle(1);
+      Application result = applicationService.unhandle(1, Status.ACCEPTED);
       Assert.assertEquals(expected, result);
 
    }
@@ -104,7 +105,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("UNHANDLED")).thenReturn(new Status("UNHANDLED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.accept(10, Status.UNHANDLED);
    }
    @Test
    public void accept_shouldReturnAcceptedApp() throws Exception {
@@ -115,7 +116,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("ACCEPTED")).thenReturn(new Status("ACCEPTED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(unhandled));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(acceptedapp);
-      Application result = applicationService.accept(1);
+      Application result = applicationService.accept(1, Status.UNHANDLED);
       Assert.assertEquals(expected, result);
    }
    @Test(expected = EntityDoesNotExistException.class)
@@ -123,7 +124,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("ACCEPTED")).thenReturn(new Status("ACCEPTED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.accept(10, Status.UNHANDLED);
    }
    @Test
    public void reject_shouldReturnRejectedApp() throws Exception {
@@ -134,7 +135,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
       Mockito.when(applicationRepository.findById((long) 1)).thenReturn(java.util.Optional.ofNullable(unhandled));
       Mockito.when(applicationRepository.save(any(Application.class))).thenReturn(rejectedapp);
-      Application result = applicationService.accept(1);
+      Application result = applicationService.accept(1, Status.UNHANDLED);
       Assert.assertEquals(expected, result);
    }
    @Test(expected = EntityDoesNotExistException.class)
@@ -142,7 +143,7 @@ public class ApplicationServiceTest {
       Mockito.when(statusRepository.findByName("REJECTED")).thenReturn(new Status("REJECTED"));
       Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(null));
 
-      applicationService.accept(10);
+      applicationService.reject(10, Status.UNHANDLED);
    }
    @Test
    public void saveapplication_shouldReturnSavedApplication() throws Exception {
@@ -211,5 +212,32 @@ public class ApplicationServiceTest {
       Mockito.when(securityService.getUser(username)).thenReturn(user);
       Mockito.when(personRepository.findByUser(user)).thenReturn(null);
       applicationService.saveApplication(apr, username);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void acceptOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.ACCEPTED)).thenReturn(new Status(Status.ACCEPTED));
+      Application a = acceptedapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.accept(10, Status.UNHANDLED);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void rejectOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.REJECTED)).thenReturn(new Status(Status.REJECTED));
+      Application a = rejectedapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.reject(10, Status.UNHANDLED);
+   }
+   @Test(expected = ConcurrentAccessException.class)
+   public void unhandleOnLockedApplication_shouldThrowException() throws Exception {
+      Mockito.when(statusRepository.findByName(Status.UNHANDLED)).thenReturn(new Status(Status.UNHANDLED));
+      Application a = unhandledapp;
+      Mockito.when(applicationRepository.findById((long) 10)).thenReturn(Optional.ofNullable(a));
+      Mockito.when(applicationRepository.save(a)).thenThrow(new OptimisticLockException());
+
+      applicationService.unhandle(10, Status.ACCEPTED);
    }
 }
