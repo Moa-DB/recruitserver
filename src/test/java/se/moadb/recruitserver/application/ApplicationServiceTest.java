@@ -211,4 +211,5 @@ public class ApplicationServiceTest {
       Mockito.when(personRepository.findByUser(user)).thenReturn(null);
       applicationService.saveApplication(apr, username);
    }
+   @Test
 }
