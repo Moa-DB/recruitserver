@@ -104,6 +104,8 @@ public class ApplicationService  {
     */
    public List<Application> getApplications(Map<String, Object> request) {
 
+      System.out.println("in ApplicationService " + request);
+
       List<Application> applications = applicationRepository.findAll();
 
       /* get from_time if present, else empty string */

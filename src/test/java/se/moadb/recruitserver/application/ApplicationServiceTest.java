@@ -19,12 +19,8 @@ import se.moadb.recruitserver.repository.PersonRepository;
 import se.moadb.recruitserver.repository.StatusRepository;
 
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
@@ -52,21 +48,56 @@ public class ApplicationServiceTest {
    private User user;
    private String username;
    private Person p;
+   private Person p2;
    private Competence c1;
+   private Competence c2;
+   private Application firstApplication;
+   private Application secondApplication;
+   private Application thirdApplication;
+   private Map<String, Object> emptyRequest;
+   private Map<String, Object> nameRequest;
+
+
+   private List<Application> allApplications;
+   private List<Application> nameApplications;
+
    @Before
    public void setUp() {
       p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
+      p2 = new Person("Greta", "Borg", "19820501-3244", "greta@strand.se", new User());
       c1 = new Competence("Korvgrillning");
+      c2 = new Competence("Karuselldrift");
       CompetenceProfile cp1 = new CompetenceProfile(c1, 3.5);
+      CompetenceProfile cp2 = new CompetenceProfile(c2,5);
       cp1.setId(7);
+      cp2.setId(8);
       ArrayList<CompetenceProfile> cplist = new ArrayList<>();
       cplist.add(cp1);
+      ArrayList<CompetenceProfile> cplist2 = new ArrayList<>();
+      cplist2.add(cp1);
+      cplist2.add(cp2);
+
       ArrayList<Availability> alist = new ArrayList<>();
       Date from = Date.valueOf("2014-02-24");
       Date to = Date.valueOf("2014-05-26");
       Availability a1 = new Availability(from, to);
       a1.setId(5);
       alist.add(a1);
+
+      ArrayList<Availability> alist2 = new ArrayList<>();
+      Date from2 = Date.valueOf("2014-07-10");
+      Date to2 = Date.valueOf("2014-08-10");
+      Availability a2 = new Availability(from2, to2);
+      a2.setId(6);
+      alist2.add(a2);
+
+      ArrayList<Availability> alist3 = new ArrayList<>();
+      Date from3 = Date.valueOf("2001-01-24");
+      Date to3 = Date.valueOf("2012-01-18");
+      Availability a3 = new Availability(from3, to3);
+      a3.setId(11);
+      alist2.add(a3);
+
 
       unhandledapp = new Application(p, cplist, alist, new Status("UNHANDLED"));
       unhandledapp.setId(1);
@@ -83,6 +114,30 @@ public class ApplicationServiceTest {
 
       username = "username";
       user = new User(username, "pass", new ArrayList<>());
+
+      firstApplication = new Application(p, cplist2, alist, new Status("UNHANDLED"));
+      secondApplication = new Application(p2, cplist, alist2, new Status("UNHANDLED"));
+      thirdApplication = new Application(p, cplist2, alist3, new Status("UNHANDLED"));
+
+      allApplications = new ArrayList<>();
+      allApplications.add(firstApplication);
+      allApplications.add(secondApplication);
+      allApplications.add(thirdApplication);
+
+      /* add all applications with "Per" */
+      nameApplications = new ArrayList<>();
+      nameApplications.add(firstApplication);
+      nameApplications.add(secondApplication);
+
+      emptyRequest = new HashMap<String, Object>() {{
+      }};
+//      nameRequest = new HashMap<String, Object>() {{
+//          put("name", "Per");
+//      }};
+      nameRequest = new HashMap<>();
+      nameRequest.put("name", "Per");
+
+
    }
 
    @Test
@@ -212,4 +267,19 @@ public class ApplicationServiceTest {
       applicationService.saveApplication(apr, username);
    }
    @Test
+   public void whenSearchingWithNoAttachedJSONData_shouldReturnAllApplications() {
+      Mockito.when(applicationRepository.findAll()).thenReturn(allApplications);
+      List<Application> result = applicationService.getApplications(emptyRequest);
+      System.out.println("result " + result);
+      List<Application> expected = allApplications;
+      System.out.println("expected " + expected);
+      Assert.assertEquals(expected, result);
+   }
+   @Test
+   public void whenSearchingWithName_shouldReturnApplicationsWithName(){
+      Mockito.when(applicationRepository.findAllByPerson(any(Person.class))).thenReturn(nameApplications);
+      List<Application> result = applicationService.getApplications(nameRequest);
+      List<Application> expected = nameApplications;
+      Assert.assertEquals(expected, result);
+   }
 }
