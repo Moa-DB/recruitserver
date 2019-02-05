@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    List<Application> findAllByPerson(Person person);
+    List<Application> findAllByPersonLike(Person person);
     List<Application> findAllByAvailabilitiesIn(List<Availability> availabilities);
     List<Application> findAllByCompetenceProfilesIn(List<CompetenceProfile> competenceProfiles);
     List<Application> findAllByDate(Date date);

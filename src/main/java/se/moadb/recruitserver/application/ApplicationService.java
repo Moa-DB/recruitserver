@@ -150,7 +150,7 @@ public class ApplicationService  {
       if (!name.equals("")){
          /* get the person and then find the matching applications */
          Person person = personRepository.findByName(name);
-         List<Application> nameApplications = applicationRepository.findAllByPerson(person);
+         List<Application> nameApplications = applicationRepository.findAllByPersonLike(person);
          /* remove applications that doesn't match the name criteria */
          applications.removeIf(app -> !nameApplications.contains(app));
       }
