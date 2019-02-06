@@ -51,8 +51,6 @@ public class ApplicationControllerTest {
    private ApplicationPostRequest apr;
    private String username;
 
-   private Person p2;
-   private Person p3;
    private Application secondApplication;
    private Application thirdApplication;
    private Application fourthApplication;
@@ -120,12 +118,7 @@ public class ApplicationControllerTest {
 
 
 
-      c1 = new Competence("Korvgrillning");
-      Competence c2 = new Competence("Karuselldrift");
-      CompetenceProfile cp1 = new CompetenceProfile(c1, 3.5);
-      CompetenceProfile cp2 = new CompetenceProfile(c2,5);
-      cp1.setId(7);
-      cp2.setId(8);
+
       ArrayList<CompetenceProfile> cplist = new ArrayList<>();
       cplist.add(cp1);
       ArrayList<CompetenceProfile> cplist2 = new ArrayList<>();
@@ -134,66 +127,53 @@ public class ApplicationControllerTest {
       ArrayList<CompetenceProfile> cplist3 = new ArrayList<>();
       cplist3.add(cp2);
 
-      ArrayList<Availability> alistC = new ArrayList<>();
-      Date from = Date.valueOf("2014-02-24");
-      Date to = Date.valueOf("2014-05-26");
-      Availability a1C = new Availability(from, to);
-      a1C.setId(5);
-      alistC.add(a1C);
+      Person p2 = new Person("Greta", "Borg", "19820501-3244", "greta@strand.se", new User());
 
-      ArrayList<Availability> alist2C = new ArrayList<>();
-      Date from2C = Date.valueOf("2014-07-10");
-      Date to2C = Date.valueOf("2014-08-10");
-      Availability a2C = new Availability(from2C, to2C);
-      a2C.setId(6);
-      alist2C.add(a2C);
+      p2.setId(2);
 
-      ArrayList<Availability> alist3 = new ArrayList<>();
-      Date from3 = Date.valueOf("2001-01-24");
-      Date to3 = Date.valueOf("2012-01-18");
-      Availability a3 = new Availability(from3, to3);
-      a3.setId(11);
-      alist3.add(a3);
+      ArrayList<Availability> alistX = new ArrayList<>();
+      Date fromX = Date.valueOf("2014-02-23");
+      Date toX = Date.valueOf("2014-05-25");
+      Availability aX = new Availability(fromX, toX);
+      aX.setId(5);
+      alistX.add(aX);
+      Date fromX2 = Date.valueOf("2014-07-10");
+      Date toX2 = Date.valueOf("2014-08-10");
+      Availability aX2 = new Availability(fromX2, toX2);
+      aX2.setId(6);
+      alistX.add(aX2);
 
-      applicationDate1 = Date.valueOf("2014-02-07");
-      applicationDate2 = Date.valueOf("2012-02-07");
-      applicationDate3 = Date.valueOf("2014-09-22");
+
+      applicationDate1 = Date.valueOf("2011-11-11");
+
 
       fromDate = Date.valueOf("2012-01-02");
       toDate = Date.valueOf("2015-07-22");
 
-      Application firstApplication = new Application(p, cplist2, alistC, new Status("UNHANDLED"), applicationDate1);
-      secondApplication = new Application(p2, cplist, alist2C, new Status("UNHANDLED"), applicationDate2);
-      thirdApplication = new Application(p, cplist2, alist3, new Status("UNHANDLED"), applicationDate3);
-      fourthApplication = new Application(p3, cplist3, alistC, new Status("UNHANDLED"), applicationDate1);
+      Application firstApplication = new Application(p, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
+
+      firstApplication.setId(9);
+
 
       allApplications = new ArrayList<>();
       allApplications.add(firstApplication);
-      allApplications.add(secondApplication);
-      allApplications.add(thirdApplication);
-      allApplications.add(fourthApplication);
 
       /* applications between "2012-01-02" and "2015-07-22" */
       timePeriodApplications = new ArrayList<>();
       timePeriodApplications.add(firstApplication);
-      timePeriodApplications.add(secondApplication);
-      timePeriodApplications.add(fourthApplication);
 
       /* applications with date "2014-02-07" */
       applicationDate1Applicaions = new ArrayList<>();
       applicationDate1Applicaions.add(firstApplication);
-      applicationDate1Applicaions.add(fourthApplication);
 
       /* add all applications with "Per" */
       nameApplications = new ArrayList<>();
       nameApplications.add(firstApplication);
-      nameApplications.add(secondApplication);
 
       /* applications with competence "Karuselldrift" */
       competenceApplications = new ArrayList<>();
       competenceApplications.add(firstApplication);
-      competenceApplications.add(thirdApplication);
-      competenceApplications.add(fourthApplication);
+
 
       /* requests */
       emptyRequest = new HashMap<String, Object>() {{
@@ -274,21 +254,15 @@ public class ApplicationControllerTest {
    @Test
    public void whenGetApplicationsByName_shouldReturnApplicationsContainingName() throws Exception {
 
-//      JSONObject jsonObj = new JSONObject("{\"name\":\"Per\"}");
-//      String body = (new ObjectMapper()).valueToTree(nameRequest).toString();
-//      System.out.println(jsonObj.toString());
       Mockito.when(applicationService.getApplications(nameRequest)).thenReturn(nameApplications);
 
       RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
               .contentType(MediaType.APPLICATION_JSON)
-//              .content(jsonObj.toString());
               .content(objectMapper.writeValueAsString(nameRequest));
-//              .content(jsonObj.toString());
       MvcResult res = mvc.perform(requestBuilder).andReturn();
       String result = res.getResponse().getContentAsString();
+      System.out.println("RESULT   " + result);
       String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"}]";
-      String extested = "[{\"id\":0,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":5.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-23\",\"toDate\":\"2014-05-25\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2014-02-06\"},{\"id\":0,\"person\":null,\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5}],\"availabilities\":[{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2012-02-06\"}]";
       JSONAssert.assertEquals(expected, result,false);
-
    }
 }
