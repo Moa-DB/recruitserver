@@ -1,6 +1,5 @@
 package se.moadb.recruitserver.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +21,6 @@ import se.moadb.recruitserver.domain.*;
 import java.security.Principal;
 import java.sql.Date;
 import java.util.*;
-import org.json.*;
 
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,47 +38,33 @@ public class ApplicationControllerTest {
    @MockBean
    private ApplicationService applicationService;
 
-   private Application app;
    private Person p;
-   private Competence c1;
-   private Competence c2;
-   private CompetenceProfile cp1;
-   private CompetenceProfile cp2;
    private Collection<CompetenceProfile> competenceProfiles;
    private Collection<Availability> availabilities;
-   private Status status;
    private ApplicationPostRequest apr;
    private String username;
 
-   private Application secondApplication;
-   private Application thirdApplication;
-   private Application fourthApplication;
+
    private Map<String, Object> emptyRequest;
    private Map<String, Object> nameRequest;
    private Map<String, Object> competenceRequest;
    private Map<String, Object> timePeriodRequest;
    private Map<String, Object> applicationDateRequest;
-   private Date applicationDate1;
-   private Date applicationDate2;
-   private Date applicationDate3;
-   private Date fromDate;
-   private Date toDate;
    private List<Application> allApplications;
    private List<Application> nameApplications;
    private List<Application> competenceApplications;
-   private List<Application> applicationDate1Applicaions;
+   private List<Application> applicationDateApplicaions;
    private List<Application> timePeriodApplications;
-   private List<Availability> timePeriodAvailabilities;
 
    @Before
    public void setup() {
       username = "username";
 
-      c1 = new Competence("Korvgrillning");
-      c2 = new Competence("Karuselldrift");
-      cp1 = new CompetenceProfile(c1, 3.5);
+      Competence c1 = new Competence("Korvgrillning");
+      Competence c2 = new Competence("Karuselldrift");
+      CompetenceProfile cp1 = new CompetenceProfile(c1, 3.5);
       cp1.setId(7);
-      cp2 = new CompetenceProfile(c2, 2);
+      CompetenceProfile cp2 = new CompetenceProfile(c2, 2);
       cp2.setId(8);
       ArrayList<CompetenceProfile> list = new ArrayList<>();
       list.add(cp1);
@@ -102,7 +86,7 @@ public class ApplicationControllerTest {
 
       p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
       p.setId(4);
-      app = new Application(p, competenceProfiles, availabilities, new Status("UNHANDLED"));
+      Application app = new Application(p, competenceProfiles, availabilities, new Status("UNHANDLED"));
       app.setId(9);
 
       CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 3.5);
@@ -116,7 +100,6 @@ public class ApplicationControllerTest {
       la.add(aipr);
       la.add(aipr2);
       apr = new ApplicationPostRequest(lc, la);
-
 
 
 
@@ -143,14 +126,13 @@ public class ApplicationControllerTest {
       aX2.setId(6);
       alistX.add(aX2);
 
-      applicationDate1 = Date.valueOf("2011-11-11");
+      Date applicationDate1 = Date.valueOf("2011-11-11");
+      Date applicationDate2 = Date.valueOf("2012-12-13");
 
-      fromDate = Date.valueOf("2012-01-02");
-      toDate = Date.valueOf("2015-07-22");
 
       Application firstApplication = new Application(p, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
       firstApplication.setId(9);
-      Application secondApplication = new Application(p2, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
+      Application secondApplication = new Application(p2, cplist2, alistX, new Status("UNHANDLED"), applicationDate2);
       secondApplication.setId(10);
 
 
@@ -161,10 +143,11 @@ public class ApplicationControllerTest {
       /* applications between "2012-01-02" and "2015-07-22" */
       timePeriodApplications = new ArrayList<>();
       timePeriodApplications.add(firstApplication);
+      timePeriodApplications.add(secondApplication);
 
       /* applications with date "2014-02-07" */
-      applicationDate1Applicaions = new ArrayList<>();
-      applicationDate1Applicaions.add(firstApplication);
+      applicationDateApplicaions = new ArrayList<>();
+      applicationDateApplicaions.add(secondApplication);
 
       /* add all applications with "Per" */
       nameApplications = new ArrayList<>();
@@ -186,7 +169,7 @@ public class ApplicationControllerTest {
       competenceRequest.put("competence", "Korvgrillning");
 
       applicationDateRequest = new HashMap<>();
-      applicationDateRequest.put("application_date", "2014-02-07");
+      applicationDateRequest.put("application_date", "2012-12-12");
 
       timePeriodRequest = new HashMap<>();
       timePeriodRequest.put("from_time", "2012-01-02");
@@ -264,14 +247,48 @@ public class ApplicationControllerTest {
       JSONAssert.assertEquals(expected, result,false);
    }
    @Test
-   public void whenGetApplicaionsWithoutParameters_shouldReturnAllApplications() throws Exception {
+   public void whenGetApplicationsWithoutParameters_shouldReturnAllApplications() throws Exception {
       Mockito.when(applicationService.getApplications(emptyRequest)).thenReturn(allApplications);
 
       RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
               .contentType(MediaType.APPLICATION_JSON)
               .content(objectMapper.writeValueAsString(emptyRequest));
       String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
-      String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"},{\"id\":10,\"person\":{\"id\":2,\"name\":\"Greta\",\"surname\":\"Borg\",\"ssn\":\"19820501-3244\",\"email\":\"greta@strand.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"}]";
+      String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"},{\"id\":10,\"person\":{\"id\":2,\"name\":\"Greta\",\"surname\":\"Borg\",\"ssn\":\"19820501-3244\",\"email\":\"greta@strand.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2012-12-12\"}]";
       JSONAssert.assertEquals(expected, result,false);
    }
+   @Test
+   public void whenGetApplicationByApplicationDate_shouldReturnApplicationsCreatedOnDate() throws Exception {
+      Mockito.when(applicationService.getApplications(applicationDateRequest)).thenReturn(applicationDateApplicaions);
+
+      RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(applicationDateRequest));
+      String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
+      String expected = "[{\"id\":10,\"person\":{\"id\":2,\"name\":\"Greta\",\"surname\":\"Borg\",\"ssn\":\"19820501-3244\",\"email\":\"greta@strand.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2012-12-12\"}]";
+      JSONAssert.assertEquals(expected, result,false);
+   }
+   @Test
+   public void whenGetApplicationByCompetence_shouldReturnApplicationsContainingCompetence() throws Exception {
+      Mockito.when(applicationService.getApplications(competenceRequest)).thenReturn(competenceApplications);
+
+      RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(competenceRequest));
+      String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
+      String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"}]";
+      JSONAssert.assertEquals(expected, result,false);
+   }
+   @Test
+   public void whenGetApplicationBetweenDates_shouldReturnApplicationsBetweenDates() throws Exception {
+      Mockito.when(applicationService.getApplications(timePeriodRequest)).thenReturn(timePeriodApplications);
+
+      RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(timePeriodRequest));
+      String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
+      String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"},{\"id\":10,\"person\":{\"id\":2,\"name\":\"Greta\",\"surname\":\"Borg\",\"ssn\":\"19820501-3244\",\"email\":\"greta@strand.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2012-12-12\"}]";
+      JSONAssert.assertEquals(expected, result,false);
+   }
+
 }
