@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import se.moadb.recruitserver.domain.Person;
 import se.moadb.recruitserver.domain.Role;
 import se.moadb.recruitserver.domain.User;
@@ -16,6 +18,7 @@ import java.util.Optional;
 /**
  * Service that handles logic concerning persons.
  */
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 @Service
 public class PersonService {
 
