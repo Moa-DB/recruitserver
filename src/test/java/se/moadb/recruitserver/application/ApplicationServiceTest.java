@@ -353,13 +353,14 @@ public class ApplicationServiceTest {
       Assert.assertEquals(expected, result);
    }
    @Test
-   public void whenSearchingForATimePeriod_shouldReturnApplicationsBetweenFromDateAndToDate(){
+   public void whenSearchingForATimePeriod_shouldReturnApplicationsBetweenFromDateAndToDate() {
       Mockito.when(applicationRepository.findAll()).thenReturn(allApplications);
       Mockito.when(availabilityRepository.findAllByFromDateBetween(fromDate, toDate)).thenReturn(timePeriodAvailabilities);
       Mockito.when(applicationRepository.findAllByAvailabilitiesIn(timePeriodAvailabilities)).thenReturn(timePeriodApplications);
       List<Application> result = applicationService.getApplications(timePeriodRequest);
       List<Application> expected = timePeriodApplications;
       Assert.assertEquals(expected, result);
+   }
    @Test(expected = ConcurrentAccessException.class)
    public void acceptOnLockedApplication_shouldThrowException() throws Exception {
       Mockito.when(statusRepository.findByName(Status.ACCEPTED)).thenReturn(new Status(Status.ACCEPTED));
