@@ -6,13 +6,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 import se.moadb.recruitserver.domain.*;
 import se.moadb.recruitserver.repository.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -24,7 +22,7 @@ import java.util.*;
 @Component
 public class DataLoader implements ApplicationRunner {
 
-    //Used to translate ids from old datatbase to ids in new database.
+    //Used to translate ids from old database to ids in new database.
     private HashMap<Long, String> role = new HashMap<>();
     private HashMap<Long, Long> person = new HashMap<>();
     private HashMap<Long, Long> availability = new HashMap<>();
