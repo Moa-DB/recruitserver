@@ -1,9 +1,11 @@
 package se.moadb.recruitserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 
 @Entity
@@ -28,61 +30,76 @@ public class Application {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
-    public Application() {
-    }
+    //enables optimistic locking. that is, if two users/threads concurrently try to operate on an instance of application, it will use this timestamp to decide if the row was changed while our transcation was going on
+    //if such is the case, it will throw OptimisticLockException
+    @JsonIgnore
+    @Version
+    private Timestamp changed;
 
-    public Application(Person person, Collection<CompetenceProfile> competenceProfiles, Collection<Availability> availabilities, Status status, Date date) {
-        this.person = person;
-        this.competenceProfiles = competenceProfiles;
-        this.availabilities = availabilities;
-        this.status = status;
-        this.date = date;
-    }
 
-    public Application(Person person, Collection<CompetenceProfile> competenceProfiles, Collection<Availability> availabilities, Status status) {
-        this.person = person;
-        this.competenceProfiles = competenceProfiles;
-        this.availabilities = availabilities;
-        this.status = status;
-    }
+   public Date getDate() {
+      return date;
+   }
 
-    public long getId() {
-        return id;
-    }
+   public void setDate(Date date) {
+      this.date = date;
+   }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+   public Timestamp getChanged() {
+      return changed;
+   }
 
-    public Person getPerson() {
-        return person;
-    }
+   public void setChanged(Timestamp changed) {
+      this.changed = changed;
+   }
 
-    public void setPerson(Person person) {
-        this.person = person;
-    }
+   public Application() {
+   }
 
-    public Collection<CompetenceProfile> getCompetenceProfiles() {
-        return competenceProfiles;
-    }
+   public Application(Person person, Collection<CompetenceProfile> competenceProfiles, Collection<Availability> availabilities, Status status, Date date) {
+      this.person = person;
+      this.competenceProfiles = competenceProfiles;
+      this.availabilities = availabilities;
+      this.status = status;
+      this.date = date;
+   }
+   public long getId() {
+      return id;
+   }
 
-    public void setCompetenceProfiles(Collection<CompetenceProfile> competenceProfiles) {
-        this.competenceProfiles = competenceProfiles;
-    }
+   public void setId(long id) {
+      this.id = id;
+   }
 
-    public Collection<Availability> getAvailabilities() {
-        return availabilities;
-    }
+   public Person getPerson() {
+      return person;
+   }
 
-    public void setAvailabilities(Collection<Availability> availabilities) {
-        this.availabilities = availabilities;
-    }
+   public void setPerson(Person person) {
+      this.person = person;
+   }
 
-    public Status getStatus() {
-        return status;
-    }
+   public Collection<CompetenceProfile> getCompetenceProfiles() {
+      return competenceProfiles;
+   }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+   public void setCompetenceProfiles(Collection<CompetenceProfile> competenceProfiles) {
+      this.competenceProfiles = competenceProfiles;
+   }
+
+   public Collection<Availability> getAvailabilities() {
+      return availabilities;
+   }
+
+   public void setAvailabilities(Collection<Availability> availabilities) {
+      this.availabilities = availabilities;
+   }
+
+   public Status getStatus() {
+      return status;
+   }
+
+   public void setStatus(Status status) {
+      this.status = status;
+   }
 }

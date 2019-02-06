@@ -6,6 +6,11 @@ import javax.persistence.Id;
 @Entity
 public class Status {
 
+    //constants, should reflect what is in database
+    public static final String ACCEPTED = "ACCEPTED";
+    public static final String REJECTED = "REJECTED";
+    public static final String UNHANDLED = "UNHANDLED";
+
     @Id
     private String name;
 

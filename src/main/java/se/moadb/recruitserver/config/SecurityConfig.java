@@ -11,11 +11,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import se.moadb.recruitserver.application.CustomAuthenticationFailureHandler;
+import se.moadb.recruitserver.application.CustomAuthenticationSuccessHandler;
 import se.moadb.recruitserver.application.SecurityService;
 
 import java.util.Collections;
@@ -51,32 +53,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .cors()
                 .and()
                 .authorizeRequests()
+                .antMatchers("/registration").permitAll()
+                .antMatchers("/statuses").permitAll()
+                .antMatchers("/applications/*").permitAll()
                 .antMatchers("/protected").authenticated()
                 .antMatchers("/login*").permitAll()
-                .antMatchers(
-                        HttpMethod.GET,
-                        "/index*", "/static/**", "/*.js", "/*.json", "/*.ico")
-                .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .loginProcessingUrl("/perform_login")
+                .successHandler(new CustomAuthenticationSuccessHandler())
                 .failureHandler(customAuthenticationFailureHandler())
                 .and()
                 .logout()
                 .logoutUrl("/perform_logout");
     }
-
-//    /**
-//     * We use BCrypt to encode passwords
-//     * @return
-//     */
-//    @Bean
-//    public BCryptPasswordEncoder passWordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
 
     /**
      * Spring authentication provider that uses BCryptPasswordEncoder and checks with our securityService
@@ -119,7 +112,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 
 }
