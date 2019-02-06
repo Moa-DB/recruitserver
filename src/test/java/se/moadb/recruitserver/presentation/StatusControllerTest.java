@@ -14,12 +14,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import se.moadb.recruitserver.application.StatusService;
 import se.moadb.recruitserver.domain.Status;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = StatusController.class, secure = false)
@@ -42,7 +43,7 @@ public class StatusControllerTest {
 
         Mockito.when(statusService.getAllStatuses()).thenReturn(statuses);
 
-        RequestBuilder rb = MockMvcRequestBuilders.get("/statuses").accept(MediaType.APPLICATION_JSON);
+        RequestBuilder rb = get("/statuses").accept(MediaType.APPLICATION_JSON);
         MvcResult res = mvc.perform(rb).andReturn();
         String expected = "[{\"name\":\"ACCEPTED\"},{\"name\":\"REJECTED\"},{\"name\":\"UNHANDLED\"}]";
         JSONAssert.assertEquals(expected, res.getResponse().getContentAsString(), false);

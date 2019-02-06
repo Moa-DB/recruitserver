@@ -3,7 +3,6 @@ package se.moadb.recruitserver.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -20,8 +18,8 @@ import se.moadb.recruitserver.application.CustomAuthenticationFailureHandler;
 import se.moadb.recruitserver.application.CustomAuthenticationSuccessHandler;
 import se.moadb.recruitserver.application.SecurityService;
 
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * The config class contain annotations @Configuration and @EnableTransactionManagement
@@ -53,12 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .cors()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/registration").permitAll()
-                .antMatchers("/statuses").permitAll()
-                .antMatchers("/applications/*").permitAll()
-                .antMatchers("/protected").authenticated()
-                .antMatchers("/login*").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/registration").hasAuthority("applicant")
+                .antMatchers("/statuses").hasAuthority("recruit")
+                .antMatchers("/applications/**").hasAuthority("recruit")
+                .antMatchers("/competences").hasAnyAuthority("recruit", "applicant")
                 .and()
                 .formLogin()
                 .usernameParameter("username")

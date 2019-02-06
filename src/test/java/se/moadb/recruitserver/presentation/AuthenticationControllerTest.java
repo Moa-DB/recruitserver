@@ -14,18 +14,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import se.moadb.recruitserver.application.PersonService;
 import se.moadb.recruitserver.application.SecurityService;
 import se.moadb.recruitserver.domain.Person;
 import se.moadb.recruitserver.domain.Role;
 import se.moadb.recruitserver.domain.User;
-import se.moadb.recruitserver.repository.UserRepository;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = AuthenticationController.class, secure = false)
@@ -41,9 +43,6 @@ public class AuthenticationControllerTest {
 
     @MockBean
     private SecurityService securityService;
-
-    @MockBean
-    private UserRepository userRepository;
 
     private User user;
     private Set<Role> authorities;
@@ -62,13 +61,14 @@ public class AuthenticationControllerTest {
         person.setId(0);
         registrationPostRequest = new RegistrationPostRequest(user.getUsername(), user.getPassword(), person.getName(),
                 person.getSurname(), person.getEmail(), role.getName(), person.getSsn());
+
     }
 
     @Test
     public void whenRegisterUserAndPerson_shouldReturnPerson() throws Exception {
         Mockito.when(personService.savePersonAndUser(any(RegistrationPostRequest.class))).thenReturn(person);
 
-        RequestBuilder rb = MockMvcRequestBuilders.post("/registration")
+        RequestBuilder rb = post("/registration")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registrationPostRequest));
         MvcResult res = mvc.perform(rb).andReturn();
@@ -85,7 +85,7 @@ public class AuthenticationControllerTest {
         Mockito.when(mockPrincipal.getName()).thenReturn(user.getUsername());
         Mockito.when(securityService.getUser(user.getUsername())).thenReturn(user);
 
-        RequestBuilder rb = MockMvcRequestBuilders.get("/login/success")
+        RequestBuilder rb = get("/login/success")
                 .principal(mockPrincipal);
         MvcResult res = mvc.perform(rb).andReturn();
         String expected = "{\"username\":\"test\",\"roles\":[{\"name\":\"testRole\",\"authority\":\"testRole\"}],\"accountNonExpired\":true,\"accountNonLocked\":true,\"credentialsNonExpired\":true,\"authorities\":[{\"name\":\"testRole\",\"authority\":\"testRole\"}],\"enabled\":true}";
