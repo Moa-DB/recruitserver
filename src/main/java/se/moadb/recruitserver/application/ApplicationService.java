@@ -101,74 +101,49 @@ public class ApplicationService  {
     */
    public List<Application> getApplications(Map<String, Object> request) {
 
-      System.out.println("in ApplicationService " + request);
 
       List<Application> applications = applicationRepository.findAll();
 
-      /* get from_time if present, else empty string */
       String fromTime = request.entrySet().stream()
               .filter(e -> e.getKey().equals("from_time"))
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
-
-      /* get to_time if present, else empty string */
       String toTime = request.entrySet().stream()
               .filter(e -> e.getKey().equals("to_time"))
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
-
-      /* get name if present, else empty string */
       String name = request.entrySet().stream()
               .filter(e -> e.getKey().equals("name"))
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
-
-      /* get name if present, else empty string */
       String competence = request.entrySet().stream()
               .filter(e -> e.getKey().equals("competence"))
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
-
-      /* get application_date if present, else empty string */
       String applicationDate = request.entrySet().stream()
               .filter(e -> e.getKey().equals("application_date"))
               .map(Map.Entry::getValue).findFirst().orElse("").toString();
 
-
-      /* remove all that are earlier than from_time */
       if (!fromTime.equals("") && !toTime.equals("")){
          Date fDate = Date.valueOf(fromTime);
          Date tDate = Date.valueOf(toTime);
-         /* find all availabilities that match the dates */
          List<Availability> availabilities = availabilityRepository.findAllByFromDateBetween(fDate, tDate);
-         /* get a list with the matching applications */
          List<Application> fromToApplications = applicationRepository.findAllByAvailabilitiesIn(availabilities);
-         /* remove applications that doesn't match the from to criteria */
          applications.removeIf(app -> !fromToApplications.contains(app));
       }
 
-      /* remove all that doesn't contain name */
       if (!name.equals("")){
-         /* get the person and then find the matching applications */
          Person person = personRepository.findByName(name);
          List<Application> nameApplications = applicationRepository.findAllByPersonLike(person);
-         /* remove applications that doesn't match the name criteria */
          applications.removeIf(app -> !nameApplications.contains(app));
       }
 
-      /* remove all that doesn't contain competence */
       if (!competence.equals("")){
-         /* find the competence  */
          Competence comp = competenceRepository.findByName(competence);
-         /* find competence profiles */
          List<CompetenceProfile> competenceProfiles = competenceProfileRepository.findByCompetence(comp);
-         /* get matching applications */
          List<Application> competenceApplications = applicationRepository.findAllByCompetenceProfilesIn(competenceProfiles);
-         /* remove applications that doesn't match the competence criteria */
          applications.removeIf(app -> !competenceApplications.contains(app));
       }
 
-      /* remove all that doesn't contain application_date */
       if (!applicationDate.equals("")){
          Date applDate = Date.valueOf(applicationDate);
          List<Application> dateApplications = applicationRepository.findAllByDate(applDate);
-         /* remove applications that doesn't match the competence criteria */
          applications.removeIf(app -> !dateApplications.contains(app));
       }
 
