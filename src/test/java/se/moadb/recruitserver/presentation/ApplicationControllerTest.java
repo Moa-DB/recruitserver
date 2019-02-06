@@ -1,5 +1,6 @@
 package se.moadb.recruitserver.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -128,7 +129,6 @@ public class ApplicationControllerTest {
       cplist3.add(cp2);
 
       Person p2 = new Person("Greta", "Borg", "19820501-3244", "greta@strand.se", new User());
-
       p2.setId(2);
 
       ArrayList<Availability> alistX = new ArrayList<>();
@@ -143,20 +143,20 @@ public class ApplicationControllerTest {
       aX2.setId(6);
       alistX.add(aX2);
 
-
       applicationDate1 = Date.valueOf("2011-11-11");
-
 
       fromDate = Date.valueOf("2012-01-02");
       toDate = Date.valueOf("2015-07-22");
 
       Application firstApplication = new Application(p, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
-
       firstApplication.setId(9);
+      Application secondApplication = new Application(p2, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
+      secondApplication.setId(10);
 
 
       allApplications = new ArrayList<>();
       allApplications.add(firstApplication);
+      allApplications.add(secondApplication);
 
       /* applications between "2012-01-02" and "2015-07-22" */
       timePeriodApplications = new ArrayList<>();
@@ -253,16 +253,25 @@ public class ApplicationControllerTest {
    }
    @Test
    public void whenGetApplicationsByName_shouldReturnApplicationsContainingName() throws Exception {
-
       Mockito.when(applicationService.getApplications(nameRequest)).thenReturn(nameApplications);
 
       RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
               .contentType(MediaType.APPLICATION_JSON)
               .content(objectMapper.writeValueAsString(nameRequest));
-      MvcResult res = mvc.perform(requestBuilder).andReturn();
-      String result = res.getResponse().getContentAsString();
-      System.out.println("RESULT   " + result);
+
+      String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
       String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"}]";
+      JSONAssert.assertEquals(expected, result,false);
+   }
+   @Test
+   public void whenGetApplicaionsWithoutParameters_shouldReturnAllApplications() throws Exception {
+      Mockito.when(applicationService.getApplications(emptyRequest)).thenReturn(allApplications);
+
+      RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/applications/filter")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(emptyRequest));
+      String result = mvc.perform(requestBuilder).andReturn().getResponse().getContentAsString();
+      String expected = "[{\"id\":9,\"person\":{\"id\":4,\"name\":\"Per\",\"surname\":\"Strand\",\"ssn\":\"19671212-1211\",\"email\":\"per@strand.kth.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"},{\"id\":10,\"person\":{\"id\":2,\"name\":\"Greta\",\"surname\":\"Borg\",\"ssn\":\"19820501-3244\",\"email\":\"greta@strand.se\"},\"competenceProfiles\":[{\"id\":7,\"competence\":{\"name\":\"Korvgrillning\"},\"yearsOfExperience\":3.5},{\"id\":8,\"competence\":{\"name\":\"Karuselldrift\"},\"yearsOfExperience\":2.0}],\"availabilities\":[{\"id\":5,\"fromDate\":\"2014-02-22\",\"toDate\":\"2014-05-24\"},{\"id\":6,\"fromDate\":\"2014-07-09\",\"toDate\":\"2014-08-09\"}],\"status\":{\"name\":\"UNHANDLED\"},\"date\":\"2011-11-10\"}]";
       JSONAssert.assertEquals(expected, result,false);
    }
 }
