@@ -61,6 +61,7 @@ public class ApplicationControllerTest {
    @Before
    public void setup() {
       username = "username";
+      appDate = Date.valueOf("2013-05-05");
 
       Competence c1 = new Competence("Korvgrillning");
       Competence c2 = new Competence("Karuselldrift");
@@ -86,9 +87,13 @@ public class ApplicationControllerTest {
       alist.add(a2);
       availabilities = alist;
 
+      Date applicationDate1 = Date.valueOf("2011-11-11");
+      Date applicationDate2 = Date.valueOf("2012-12-13");
+
+
       p = new Person("Per", "Strand", "19671212-1211", "per@strand.kth.se", new User());
       p.setId(4);
-      Application app = new Application(p, competenceProfiles, availabilities, new Status("UNHANDLED"));
+      Application app = new Application(p, competenceProfiles, availabilities, new Status("UNHANDLED"), applicationDate1);
       app.setId(9);
 
       CompetenceInPostRequest cipr = new CompetenceInPostRequest("Korvgrillning", 3.5);
@@ -128,8 +133,12 @@ public class ApplicationControllerTest {
       aX2.setId(6);
       alistX.add(aX2);
 
-      Date applicationDate1 = Date.valueOf("2011-11-11");
-      Date applicationDate2 = Date.valueOf("2012-12-13");
+
+      Application unhandledapp = new Application(p, cplist, alist, new Status("UNHANDLED"), appDate);
+
+      unhandledapp.setId(1);
+      Application acceptedapp = new Application(p, cplist, alist, new Status("ACCEPTED"), appDate);
+      Application rejectedapp = new Application(p, cplist, alist, new Status("REJECTED"), appDate);
 
 
       Application firstApplication = new Application(p, cplist2, alistX, new Status("UNHANDLED"), applicationDate1);
@@ -176,6 +185,8 @@ public class ApplicationControllerTest {
       timePeriodRequest = new HashMap<>();
       timePeriodRequest.put("from_time", "2012-01-02");
       timePeriodRequest.put("to_time", "2015-07-22");
+
+      applicationStatusPutRequest = new ApplicationStatusPutRequest(Status.ACCEPTED);
    }
 
    @Test
