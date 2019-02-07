@@ -10,6 +10,7 @@ import se.moadb.recruitserver.repository.CompetenceRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 @Service
 public class CompetenceService {
 

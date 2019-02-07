@@ -62,12 +62,6 @@ public class SecurityServiceTest {
         Assert.assertEquals(user, securityService.getUser(user.getUsername()));
     }
 
-    @Test(expected = EntityDoesNotExistException.class)
-    public void LoadUserByUnknownUsername_shouldThrowException() throws Exception {
-        Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(null);
-        securityService.loadUserByUsername(user.getUsername());
-    }
-
     @Test
     public void whenSaveUser_shouldReturnUser(){
         Mockito.when(userRepository.save(any(User.class))).thenReturn(user);

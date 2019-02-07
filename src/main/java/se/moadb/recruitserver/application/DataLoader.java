@@ -6,6 +6,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 import se.moadb.recruitserver.domain.*;
 import se.moadb.recruitserver.repository.*;
@@ -19,6 +21,7 @@ import java.util.*;
  * DataLoader loads the database with data when the application is started. The environment variable "MIGRATE" set on the server
  * determines if old data shall be migrated in to the current database.
  */
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 @Component
 public class DataLoader implements ApplicationRunner {
 
