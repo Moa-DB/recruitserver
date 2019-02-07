@@ -6,6 +6,8 @@ import org.springframework.security.authentication.AccountStatusUserDetailsCheck
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import se.moadb.recruitserver.domain.Role;
 import se.moadb.recruitserver.domain.User;
 import se.moadb.recruitserver.repository.RoleRepository;
@@ -18,6 +20,7 @@ import java.util.Set;
 /**
  * Service that handles logic concerning User and authentication.
  */
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 @Service
 public class SecurityService implements UserDetailsService {
 
